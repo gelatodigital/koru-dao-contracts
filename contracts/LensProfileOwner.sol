@@ -16,6 +16,6 @@ abstract contract LensProfileOwner {
     }
 
     function hasLensProfile(address _wallet) public view returns (bool) {
-        return lensHub.defaultProfile(_wallet) != 0;
+        return lensHub.balanceOf(_wallet) > 0;
     }
 }

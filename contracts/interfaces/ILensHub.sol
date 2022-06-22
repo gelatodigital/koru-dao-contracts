@@ -2,6 +2,7 @@
 pragma solidity ^0.8.14;
 
 import {DataTypes} from "../libraries/LensDataTypes.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
  * @title ILensHub
@@ -10,7 +11,7 @@ import {DataTypes} from "../libraries/LensDataTypes.sol";
  * @notice This is the interface for the LensHub contract, the main entry point for the Lens Protocol.
  * You'll find all the events and external functions, as well as the reasoning behind them here.
  */
-interface ILensHub {
+interface ILensHub is IERC721 {
     /**
      * @notice Initializes the LensHub NFT, setting the initial governance address as well as the name and symbol in
      * the LensNFTBase contract.
