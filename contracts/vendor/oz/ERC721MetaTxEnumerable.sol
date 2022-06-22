@@ -34,7 +34,7 @@ abstract contract ERC721MetaTxEnumerable is
         public
         view
         virtual
-        override(IERC165, ERC721)
+        override(IERC165, ERC721MetaTx)
         returns (bool)
     {
         return
@@ -53,7 +53,7 @@ abstract contract ERC721MetaTxEnumerable is
         returns (uint256)
     {
         require(
-            index < ERC721.balanceOf(owner),
+            index < ERC721MetaTx.balanceOf(owner),
             "ERC721Enumerable: owner index out of bounds"
         );
         return _ownedTokens[owner][index];
@@ -77,7 +77,7 @@ abstract contract ERC721MetaTxEnumerable is
         returns (uint256)
     {
         require(
-            index < ERC721Enumerable.totalSupply(),
+            index < ERC721MetaTxEnumerable.totalSupply(),
             "ERC721Enumerable: global index out of bounds"
         );
         return _allTokens[index];
@@ -123,7 +123,7 @@ abstract contract ERC721MetaTxEnumerable is
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
      */
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        uint256 length = ERC721.balanceOf(to);
+        uint256 length = ERC721MetaTx.balanceOf(to);
         _ownedTokens[to][length] = tokenId;
         _ownedTokensIndex[tokenId] = length;
     }
@@ -151,7 +151,7 @@ abstract contract ERC721MetaTxEnumerable is
         // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
 
-        uint256 lastTokenIndex = ERC721.balanceOf(from) - 1;
+        uint256 lastTokenIndex = ERC721MetaTx.balanceOf(from) - 1;
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
         // When the token to delete is the last token, the swap operation is unnecessary

@@ -2,6 +2,39 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { address as mainnetOps } from "../../deployments/mainnet/Ops.json";
+import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
+
+export const getGelatoMetaBoxAddress = (network: string): string => {
+  let chainId;
+  switch (network) {
+    case "matic":
+      chainId = 137;
+      break;
+    case "mumbai":
+    case "hardhat":
+      chainId = 80001;
+      break;
+    default:
+      throw new Error("No gelato meta box address for network");
+  }
+
+  const { address } = GelatoRelaySDK.getMetaBoxAddressAndABI(chainId);
+  return address;
+};
+export const getLensHubAddress = (network: string): string => {
+  const LENS_HUB_MATIC = "0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d";
+  const LENS_HUB_MUMBAI = "0x60Ae865ee4C725cd04353b5AAb364553f56ceF82";
+
+  switch (network) {
+    case "matic":
+      return LENS_HUB_MATIC;
+    case "mumbai":
+    case "hardhat":
+      return LENS_HUB_MUMBAI;
+    default:
+      throw new Error("No lens hub address for network");
+  }
+};
 
 export const getGelatoAddress = (network: string): string => {
   const GELATO_MAINNET = "0x3caca7b48d0573d793d3b0279b5f0029180e83b6";

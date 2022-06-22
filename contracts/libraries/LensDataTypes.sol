@@ -7,7 +7,7 @@ pragma solidity ^0.8.14;
  *
  * @notice A standard library of data types used throughout the Lens Protocol.
  */
-library LensDataTypes {
+library DataTypes {
     /**
      * @notice An enum containing the different states the protocol can be in, limiting certain actions.
      *

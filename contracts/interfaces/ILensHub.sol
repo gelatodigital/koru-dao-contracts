@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import {LensDataTypes} from "../libraries/LensDataTypes.sol";
+import {DataTypes} from "../libraries/LensDataTypes.sol";
 
 /**
  * @title ILensHub

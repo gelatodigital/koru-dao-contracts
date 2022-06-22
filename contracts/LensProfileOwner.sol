@@ -7,10 +7,7 @@ abstract contract LensProfileOwner {
     ILensHub public immutable lensHub;
 
     modifier onlyLensProfileOwner(address sender) {
-        require(
-            _hasLensProfile(sender),
-            "LensDaoNFT: Only lens profile holder"
-        );
+        require(hasLensProfile(sender), "LensDaoNFT: Only lens profile holder");
         _;
     }
 
@@ -18,7 +15,7 @@ abstract contract LensProfileOwner {
         lensHub = _lensHub;
     }
 
-    function _hasLensProfile(address _wallet) private view returns (bool) {
+    function hasLensProfile(address _wallet) public view returns (bool) {
         return lensHub.defaultProfile(_wallet) != 0;
     }
 }

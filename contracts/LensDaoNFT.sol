@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
+import {ERC721MetaTx} from "./vendor/oz/ERC721MetaTx.sol";
 import {ERC721MetaTxEnumerable} from "./vendor/oz/ERC721MetaTxEnumerable.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
 import {LensProfileOwner} from "./LensProfileOwner.sol";
@@ -11,12 +12,18 @@ contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
     string public baseUri;
 
     //solhint-disable no-empty-blocks
-    constructor(ILensHub _lensHub, address _gelatoMetaBox)
+    constructor(
+        uint256 _maxSupply,
+        ILensHub _lensHub,
+        address _gelatoMetaBox
+    )
         LensProfileOwner(_lensHub)
         ERC721MetaTx("Lens Dao Nft", "LENSDAO", _gelatoMetaBox)
-    {}
+    {
+        maxSupply = _maxSupply;
+    }
 
-    function mint() external onlyLensProfileOwner {
+    function mint() external onlyLensProfileOwner(_msgSender()) {
         uint256 supplyTotal = totalSupply();
 
         require(supplyTotal < maxSupply, "LensDaoNFT: Max Supply");
