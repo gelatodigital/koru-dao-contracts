@@ -26,8 +26,8 @@ contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
     function mint() external onlyLensProfileOwner(_msgSender()) {
         uint256 supplyTotal = totalSupply();
 
-        require(supplyTotal < maxSupply, "LensDaoNFT: Max Supply");
-        require(balanceOf(_msgSender()) == 0, "LensDaoNFT: One per wallet");
+        if (maxSupply > 0)
+            require(supplyTotal < maxSupply, "LensDaoNFT: Max Supply");
 
         _safeMint(_msgSender(), supplyTotal + 1);
     }
@@ -36,7 +36,21 @@ contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
         baseUri = _baseUri;
     }
 
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override {
+        if (to != address(0)) _onlyOnePerAccount(to);
+
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
     function _baseURI() internal view virtual override returns (string memory) {
         return baseUri;
+    }
+
+    function _onlyOnePerAccount(address _account) private view {
+        require(balanceOf(_account) == 0, "LensDaoNFT: One per account");
     }
 }

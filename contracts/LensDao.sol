@@ -13,7 +13,7 @@ import {ILensHub} from "./interfaces/ILensHub.sol";
 contract LensDao is LensProfileOwner, ERC2771Context, Proxied {
     IERC721MetaTxEnumerable public immutable lensDaoNft;
     uint256 public immutable postInterval;
-    mapping(uint256 => uint256) public lastPost;
+    mapping(address => uint256) public lastPost;
 
     constructor(
         IERC721MetaTxEnumerable _lensDaoNft,
@@ -26,20 +26,19 @@ contract LensDao is LensProfileOwner, ERC2771Context, Proxied {
     }
 
     //solhint-disable not-rely-on-time
-    function post(uint256 _lensDaoTokenId, DataTypes.PostData calldata vars)
+    function post(DataTypes.PostData calldata _vars)
         external
         onlyLensProfileOwner(_msgSender())
     {
+        address msgSender = _msgSender();
+
+        require(lensDaoNft.balanceOf(msgSender) > 0, "LensDao: No LensDaoNFT");
         require(
-            lensDaoNft.ownerOf(_lensDaoTokenId) == _msgSender(),
-            "LensDao: Not owner"
-        );
-        require(
-            block.timestamp - lastPost[_lensDaoTokenId] >= postInterval,
+            block.timestamp - lastPost[msgSender] >= postInterval,
             "LensDao: Post too frequent"
         );
 
-        lensHub.post(vars);
-        lastPost[_lensDaoTokenId] = block.timestamp;
+        lensHub.post(_vars);
+        lastPost[msgSender] = block.timestamp;
     }
 }

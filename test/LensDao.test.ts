@@ -11,7 +11,7 @@ import {
   ILensHub,
 } from "../typechain";
 import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
-import { BigNumber, Wallet } from "ethers";
+import { Wallet } from "ethers";
 import {
   getGelatoAddress,
   getGelatoMetaBoxAddress,
@@ -199,18 +199,30 @@ describe("LensDao test", function () {
     await lensDaoNFT.connect(profileOwner).mint();
 
     await expect(lensDaoNFT.connect(profileOwner).mint()).to.be.revertedWith(
-      "LensDaoNFT: One per wallet"
+      "LensDaoNFT: One per account"
     );
   });
 
-  it("post - with lensDaoNFT", async () => {
+  it("transfer - only one", async () => {
     await lensDaoNFT.connect(profileOwner).mint();
-    const lensDaoNftId = await lensDaoNFT.tokenOfOwnerByIndex(
+    await lensDaoNFT.connect(sponsor).mint();
+
+    const nftIndex = await lensDaoNFT.tokenOfOwnerByIndex(
       profileOwnerAddress,
       0
     );
 
-    const { postData } = await getPostData(lensDaoNftId);
+    await expect(
+      lensDaoNFT
+        .connect(profileOwner)
+        .transferFrom(profileOwnerAddress, sponsorAddress, nftIndex)
+    ).to.be.revertedWith("LensDaoNFT: One per account");
+  });
+
+  it("post - with lensDaoNFT", async () => {
+    await lensDaoNFT.connect(profileOwner).mint();
+
+    const { postData } = await getPostData();
 
     const { request, digest } = getReqAndDigest(
       lensDao.address,
@@ -238,12 +250,8 @@ describe("LensDao test", function () {
 
   it("post - without lensDaoNFT", async () => {
     await lensDaoNFT.connect(profileOwner).mint();
-    const lensDaoNftId = await lensDaoNFT.tokenOfOwnerByIndex(
-      profileOwnerAddress,
-      0
-    );
 
-    const { postData, postDataObj } = await getPostData(lensDaoNftId);
+    const { postData, postDataObj } = await getPostData();
 
     const { request, digest } = getReqAndDigest(
       lensDao.address,
@@ -270,24 +278,20 @@ describe("LensDao test", function () {
         )
     ).to.be.reverted;
 
-    await expect(lensDao.post(lensDaoNftId, postDataObj)).to.be.revertedWith(
-      "Not owner"
+    await expect(lensDao.post(postDataObj)).to.be.revertedWith(
+      "LensDao: No LensDaoNFT"
     );
   });
 
   it("post - too frequent", async () => {
     await lensDaoNFT.connect(profileOwner).mint();
-    const lensDaoNftId = await lensDaoNFT.tokenOfOwnerByIndex(
-      profileOwnerAddress,
-      0
-    );
 
-    const { postDataObj } = await getPostData(lensDaoNftId);
+    const { postDataObj } = await getPostData();
 
-    await lensDao.connect(profileOwner).post(lensDaoNftId, postDataObj);
+    await lensDao.connect(profileOwner).post(postDataObj);
 
     await expect(
-      lensDao.connect(profileOwner).post(lensDaoNftId, postDataObj)
+      lensDao.connect(profileOwner).post(postDataObj)
     ).to.be.revertedWith("LensDao: Post too frequent");
   });
 
@@ -314,7 +318,7 @@ describe("LensDao test", function () {
     return { request: metaTxRequest, digest };
   };
 
-  const getPostData = async (lensDaoNftId: BigNumber) => {
+  const getPostData = async () => {
     const profileId = await lensHub.getProfileIdByHandle("lensdao.test");
     const contentURI = "https://";
     const collectModule = freeCollectModuleAddress;
@@ -335,7 +339,6 @@ describe("LensDao test", function () {
     };
 
     const postData = lensDao.interface.encodeFunctionData("post", [
-      lensDaoNftId,
       postDataObj,
     ]);
 

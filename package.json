@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@gelatonetwork/core": "1.6.1",
-    "@gelatonetwork/gelato-relay-sdk": "^0.5.2",
+    "@gelatonetwork/gelato-relay-sdk": "^0.6.1",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.5.0",

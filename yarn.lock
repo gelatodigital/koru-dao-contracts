@@ -596,10 +596,10 @@
   resolved "https://registry.yarnpkg.com/@gelatonetwork/core/-/core-1.6.1.tgz#6a4fece9f2b0f958f438ecce38fdc2ab180b0a5c"
   integrity sha512-OSOprK5oy7Mal7Ri4vFRZESbHPkhOH5UeIm3+A/yvoQ5TcyiTegh2El3dsMHKp0vGr00JltQ7v4uubOiWjzUyQ==
 
-"@gelatonetwork/gelato-relay-sdk@^0.5.2":
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/@gelatonetwork/gelato-relay-sdk/-/gelato-relay-sdk-0.5.2.tgz#798d88743649990029b54a90f760d9f582140dc4"
-  integrity sha512-aPfXGLTmS0/BQKhorKJ5+liz+sNESHtwkJ0gbsIjRRTFKg9yXhgZ2xpmttgfcksJbZzPJK0vYQWqW9gfFXAi2Q==
+"@gelatonetwork/gelato-relay-sdk@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@gelatonetwork/gelato-relay-sdk/-/gelato-relay-sdk-0.6.1.tgz#fcca420c82e03be9a3478deed3e25380ba84cd18"
+  integrity sha512-Oa4Gs6gl7MOEj8b10ucFJ9ayjn9xt1y5uMuFC6a7De5Wu5qjnxuBKoOFJraCNK4c7mWgVrntLOhWMSbiiJXu5w==
   dependencies:
     "@gelatonetwork/core-sdk" "^0.3.0"
     axios "0.24.0"
