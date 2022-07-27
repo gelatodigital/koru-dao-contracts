@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-
-import { address as mainnetOps } from "../../deployments/mainnet/Ops.json";
 import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
 
 export const getGelatoMetaBoxAddress = (network: string): string => {
@@ -87,30 +84,4 @@ export const getGelatoAddress = (network: string): string => {
     default:
       throw new Error("No gelato address for network");
   }
-};
-
-export const getOpsAddress = async (
-  hre: HardhatRuntimeEnvironment
-): Promise<string> => {
-  const network = hre.network.name;
-
-  if (network == "mainnet" || network == "hardhat") return mainnetOps;
-
-  return (await hre.ethers.getContract("Ops")).address;
-};
-
-export const getTaskTreasuryAddress = async (
-  hre: HardhatRuntimeEnvironment
-): Promise<string> => {
-  const network = hre.network.name;
-
-  if (
-    network == "mainnet" ||
-    network == "ropsten" ||
-    network == "rinkeby" ||
-    network == "goerli"
-  )
-    return (await hre.ethers.getContract("TaskTreasury")).address;
-
-  return (await hre.ethers.getContract("TaskTreasuryL2")).address;
 };
