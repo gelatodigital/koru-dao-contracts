@@ -4,8 +4,8 @@ import { expect } from "chai";
 import hre = require("hardhat");
 const { ethers, deployments } = hre;
 import {
-  LensDao,
-  LensDaoNFT,
+  KoruDao,
+  KoruDaoNFT,
   IMockProfileCreationProxy,
   IGelatoMetaBox,
   ILensHub,
@@ -34,7 +34,7 @@ const txFee = 0;
 const taskId =
   "0x6d707c5a3def3c26511b9d16a1291ca078f5e891336180d8fc5a4cf0b5736cfa";
 
-describe("LensDao test", function () {
+describe("KoruDao test", function () {
   this.timeout(0);
 
   let deployer: Signer;
@@ -47,8 +47,8 @@ describe("LensDao test", function () {
   let profileOwnerAddress: string;
   let nonProfileOwnerAddress: string;
 
-  let lensDao: LensDao;
-  let lensDaoNFT: LensDaoNFT;
+  let koruDao: KoruDao;
+  let koruDaoNFT: KoruDaoNFT;
   let lensProfileCreator: IMockProfileCreationProxy;
   let gelatoMetaBox: IGelatoMetaBox;
   let lensHub: ILensHub;
@@ -86,8 +86,8 @@ describe("LensDao test", function () {
     profileOwnerAddress = await profileOwner.getAddress();
     nonProfileOwnerAddress = await nonProfileOwner.getAddress();
 
-    lensDao = await ethers.getContract("LensDao");
-    lensDaoNFT = await ethers.getContract("LensDaoNFT");
+    koruDao = await ethers.getContract("KoruDao");
+    koruDaoNFT = await ethers.getContract("KoruDaoNFT");
     lensProfileCreator = await ethers.getContractAt(
       "IMockProfileCreationProxy",
       lensProfileCreatorAddress
@@ -107,41 +107,41 @@ describe("LensDao test", function () {
     // Create Lens Profile for user
     await lensProfileCreator.connect(deployer).proxyCreateProfile({
       to: profileOwnerAddress,
-      handle: "lensdaouser",
+      handle: "korudaouser",
       imageURI: "https://",
       followModule: "0x0000000000000000000000000000000000000000",
       followModuleInitData: "0x",
       followNFTURI: "ipfs://",
     });
 
-    // Create Lens Profile for LensDao
+    // Create Lens Profile for KoruDao
     await lensProfileCreator.connect(deployer).proxyCreateProfile({
       to: sponsorAddress,
-      handle: "lensdao",
+      handle: "korudao",
       imageURI: "https://",
       followModule: "0x0000000000000000000000000000000000000000",
       followModuleInitData: "0x",
       followNFTURI: "ipfs://",
     });
 
-    expect(await lensDao.hasLensProfile(sponsorAddress)).to.be.true;
-    expect(await lensDao.hasLensProfile(profileOwnerAddress)).to.be.true;
+    expect(await koruDao.hasLensProfile(sponsorAddress)).to.be.true;
+    expect(await koruDao.hasLensProfile(profileOwnerAddress)).to.be.true;
 
-    // Delegate posting rights to lensDao
-    const lensProfileid = await lensHub.getProfileIdByHandle("lensdao.test");
+    // Delegate posting rights to koruDao
+    const lensProfileid = await lensHub.getProfileIdByHandle("korudao.test");
     await lensHub
       .connect(sponsor)
-      .setDispatcher(lensProfileid, lensDao.address);
+      .setDispatcher(lensProfileid, koruDao.address);
 
     expect(await lensHub.getDispatcher(lensProfileid)).to.be.eql(
-      lensDao.address
+      koruDao.address
     );
   });
 
   it("mint - lens profile owner", async () => {
-    const mintData = lensDaoNFT.interface.encodeFunctionData("mint");
+    const mintData = koruDaoNFT.interface.encodeFunctionData("mint");
     const { request, digest } = getReqAndDigest(
-      lensDaoNFT.address,
+      koruDaoNFT.address,
       mintData,
       profileOwnerAddress
     );
@@ -162,15 +162,15 @@ describe("LensDao test", function () {
         txFee,
         taskId
       );
-    expect(await lensDaoNFT.balanceOf(profileOwnerAddress)).to.be.eql(
+    expect(await koruDaoNFT.balanceOf(profileOwnerAddress)).to.be.eql(
       ethers.BigNumber.from("1")
     );
   });
 
   it("mint - non lens profile owner", async () => {
-    const mintData = lensDaoNFT.interface.encodeFunctionData("mint");
+    const mintData = koruDaoNFT.interface.encodeFunctionData("mint");
     const { request, digest } = getReqAndDigest(
-      lensDaoNFT.address,
+      koruDaoNFT.address,
       mintData,
       profileOwnerAddress
     );
@@ -196,36 +196,36 @@ describe("LensDao test", function () {
   });
 
   it("mint - only one", async () => {
-    await lensDaoNFT.connect(profileOwner).mint();
+    await koruDaoNFT.connect(profileOwner).mint();
 
-    await expect(lensDaoNFT.connect(profileOwner).mint()).to.be.revertedWith(
-      "LensDaoNFT: One per account"
+    await expect(koruDaoNFT.connect(profileOwner).mint()).to.be.revertedWith(
+      "KoruDaoNFT: One per account"
     );
   });
 
   it("transfer - only one", async () => {
-    await lensDaoNFT.connect(profileOwner).mint();
-    await lensDaoNFT.connect(sponsor).mint();
+    await koruDaoNFT.connect(profileOwner).mint();
+    await koruDaoNFT.connect(sponsor).mint();
 
-    const nftIndex = await lensDaoNFT.tokenOfOwnerByIndex(
+    const nftIndex = await koruDaoNFT.tokenOfOwnerByIndex(
       profileOwnerAddress,
       0
     );
 
     await expect(
-      lensDaoNFT
+      koruDaoNFT
         .connect(profileOwner)
         .transferFrom(profileOwnerAddress, sponsorAddress, nftIndex)
-    ).to.be.revertedWith("LensDaoNFT: One per account");
+    ).to.be.revertedWith("KoruDaoNFT: One per account");
   });
 
-  it("post - with lensDaoNFT", async () => {
-    await lensDaoNFT.connect(profileOwner).mint();
+  it("post - with koruDaoNFT", async () => {
+    await koruDaoNFT.connect(profileOwner).mint();
 
     const { postData } = await getPostData();
 
     const { request, digest } = getReqAndDigest(
-      lensDao.address,
+      koruDao.address,
       postData,
       profileOwnerAddress
     );
@@ -248,13 +248,13 @@ describe("LensDao test", function () {
       );
   });
 
-  it("post - without lensDaoNFT", async () => {
-    await lensDaoNFT.connect(profileOwner).mint();
+  it("post - without koruDaoNFT", async () => {
+    await koruDaoNFT.connect(profileOwner).mint();
 
     const { postData, postDataObj } = await getPostData();
 
     const { request, digest } = getReqAndDigest(
-      lensDao.address,
+      koruDao.address,
       postData,
       nonProfileOwnerAddress
     );
@@ -278,21 +278,21 @@ describe("LensDao test", function () {
         )
     ).to.be.reverted;
 
-    await expect(lensDao.post(postDataObj)).to.be.revertedWith(
-      "LensDao: No LensDaoNFT"
+    await expect(koruDao.post(postDataObj)).to.be.revertedWith(
+      "KoruDao: No KoruDaoNft"
     );
   });
 
   it("post - too frequent", async () => {
-    await lensDaoNFT.connect(profileOwner).mint();
+    await koruDaoNFT.connect(profileOwner).mint();
 
     const { postDataObj } = await getPostData();
 
-    await lensDao.connect(profileOwner).post(postDataObj);
+    await koruDao.connect(profileOwner).post(postDataObj);
 
     await expect(
-      lensDao.connect(profileOwner).post(postDataObj)
-    ).to.be.revertedWith("LensDao: Post too frequent");
+      koruDao.connect(profileOwner).post(postDataObj)
+    ).to.be.revertedWith("KoruDao: Post too frequent");
   });
 
   const getReqAndDigest = (
@@ -319,7 +319,7 @@ describe("LensDao test", function () {
   };
 
   const getPostData = async () => {
-    const profileId = await lensHub.getProfileIdByHandle("lensdao.test");
+    const profileId = await lensHub.getProfileIdByHandle("korudao.test");
     const contentURI = "https://";
     const collectModule = freeCollectModuleAddress;
     const collectModuleInitData = ethers.utils.defaultAbiCoder.encode(
@@ -338,7 +338,7 @@ describe("LensDao test", function () {
       referenceModuleInitData,
     };
 
-    const postData = lensDao.interface.encodeFunctionData("post", [
+    const postData = koruDao.interface.encodeFunctionData("post", [
       postDataObj,
     ]);
 

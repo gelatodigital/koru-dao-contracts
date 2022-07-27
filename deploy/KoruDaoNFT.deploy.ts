@@ -9,7 +9,7 @@ import {
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (hre.network.name !== "hardhat") {
     console.log(
-      `Deploying LensDao to ${hre.network.name}. Hit ctrl + c to abort`
+      `Deploying KoruDaoNFT to ${hre.network.name}. Hit ctrl + c to abort`
     );
     await sleep(10000);
   }
@@ -20,21 +20,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const lensHubAddress = getLensHubAddress(hre.network.name);
   const gelatoMetaBoxAddress = getGelatoMetaBoxAddress(hre.network.name);
-  const lensDaoNftAddress = (await hre.ethers.getContract("LensDaoNFT"))
-    .address;
-  const postInterval = 12 * 60 * 60; // 12 hours
+  const maxSupply = 1000;
 
-  await deploy("LensDao", {
+  await deploy("KoruDaoNFT", {
     from: deployer,
     proxy: {
       owner: deployer,
     },
-    args: [
-      lensDaoNftAddress,
-      postInterval,
-      lensHubAddress,
-      gelatoMetaBoxAddress,
-    ],
+    args: [maxSupply, lensHubAddress, gelatoMetaBoxAddress],
   });
 };
 
@@ -45,5 +38,4 @@ func.skip = async (hre: HardhatRuntimeEnvironment) => {
   return shouldSkip;
 };
 
-func.tags = ["LensDao"];
-func.dependencies = ["LensDaoNFT"];
+func.tags = ["KoruDaoNFT"];

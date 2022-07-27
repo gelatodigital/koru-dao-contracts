@@ -7,7 +7,7 @@ import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
 import {LensProfileOwner} from "./LensProfileOwner.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
-contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
+contract KoruDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
     uint256 public immutable maxSupply;
     string public baseUri;
 
@@ -15,10 +15,10 @@ contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
     constructor(
         uint256 _maxSupply,
         ILensHub _lensHub,
-        address _gelatoMetaBox
+        address _gelatoRelay
     )
         LensProfileOwner(_lensHub)
-        ERC721MetaTx("Lens Dao Nft", "LENSDAO", _gelatoMetaBox)
+        ERC721MetaTx("Koru Dao Nft", "KORUDAO", _gelatoRelay)
     {
         maxSupply = _maxSupply;
     }
@@ -27,7 +27,7 @@ contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
         uint256 supplyTotal = totalSupply();
 
         if (maxSupply > 0)
-            require(supplyTotal < maxSupply, "LensDaoNFT: Max Supply");
+            require(supplyTotal < maxSupply, "KoruDaoNFT: Max Supply");
 
         _safeMint(_msgSender(), supplyTotal + 1);
     }
@@ -51,6 +51,6 @@ contract LensDaoNFT is LensProfileOwner, ERC721MetaTxEnumerable, Proxied {
     }
 
     function _onlyOnePerAccount(address _account) private view {
-        require(balanceOf(_account) == 0, "LensDaoNFT: One per account");
+        require(balanceOf(_account) == 0, "KoruDaoNFT: One per account");
     }
 }
