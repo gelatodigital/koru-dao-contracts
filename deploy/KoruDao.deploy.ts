@@ -5,15 +5,9 @@ import {
   getGelatoMetaBoxAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
+import { ethers } from "hardhat";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  if (hre.network.name !== "hardhat") {
-    console.log(
-      `Deploying KoruDao to ${hre.network.name}. Hit ctrl + c to abort`
-    );
-    await sleep(10000);
-  }
-
   const { deployments } = hre;
   const { deploy } = deployments;
   const { deployer } = await hre.getNamedAccounts();
@@ -22,7 +16,26 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const gelatoMetaBoxAddress = getGelatoMetaBoxAddress(hre.network.name);
   const koruDaoNftAddress = (await hre.ethers.getContract("KoruDaoNFT"))
     .address;
-  const postInterval = 24 * 60 * 60; // 24 hours
+
+  let hasRestrictions;
+  let postInterval;
+
+  if (hre.network.name === "matic" || hre.network.name === "hardhat") {
+    hasRestrictions = true;
+    postInterval = 24 * 60 * 60; // 24 hrs
+  } else {
+    hasRestrictions = false;
+    postInterval = 10 * 60; // 10 min
+  }
+
+  if (hre.network.name !== "hardhat") {
+    console.log(
+      `Deploying KoruDao to ${hre.network.name}. Hit ctrl + c to abort`
+    );
+    console.log("hasRestrictions: ", hasRestrictions);
+    console.log("postInterval: ", postInterval);
+    await sleep(10000);
+  }
 
   await deploy("KoruDao", {
     from: deployer,
@@ -30,11 +43,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       owner: deployer,
     },
     args: [
+      hasRestrictions,
       koruDaoNftAddress,
       postInterval,
       lensHubAddress,
       gelatoMetaBoxAddress,
     ],
+    gasPrice: ethers.utils.parseUnits("120", "gwei"),
   });
 };
 

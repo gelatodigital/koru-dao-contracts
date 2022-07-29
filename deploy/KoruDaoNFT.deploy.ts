@@ -5,29 +5,42 @@ import {
   getGelatoMetaBoxAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
+import { ethers } from "hardhat";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  if (hre.network.name !== "hardhat") {
-    console.log(
-      `Deploying KoruDaoNFT to ${hre.network.name}. Hit ctrl + c to abort`
-    );
-    await sleep(10000);
-  }
-
   const { deployments } = hre;
   const { deploy } = deployments;
   const { deployer } = await hre.getNamedAccounts();
 
   const lensHubAddress = getLensHubAddress(hre.network.name);
   const gelatoMetaBoxAddress = getGelatoMetaBoxAddress(hre.network.name);
-  const maxSupply = 1000;
+
+  let hasRestrictions;
+  let maxSupply;
+  if (hre.network.name === "matic" || hre.network.name === "hardhat") {
+    hasRestrictions = true;
+    maxSupply = 250;
+  } else {
+    hasRestrictions = false;
+    maxSupply = 0;
+  }
+
+  if (hre.network.name !== "hardhat") {
+    console.log(
+      `Deploying KoruDaoNFT to ${hre.network.name}. Hit ctrl + c to abort`
+    );
+    console.log("hasRestrictions: ", hasRestrictions);
+    console.log("maxSupply: ", maxSupply);
+    await sleep(10000);
+  }
 
   await deploy("KoruDaoNFT", {
     from: deployer,
     proxy: {
       owner: deployer,
     },
-    args: [maxSupply, lensHubAddress, gelatoMetaBoxAddress],
+    args: [hasRestrictions, maxSupply, lensHubAddress, gelatoMetaBoxAddress],
+    gasPrice: ethers.utils.parseUnits("120", "gwei"),
   });
 };
 

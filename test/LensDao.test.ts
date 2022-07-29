@@ -45,7 +45,6 @@ describe("KoruDao test", function () {
 
   let sponsorAddress: string;
   let profileOwnerAddress: string;
-  let nonProfileOwnerAddress: string;
 
   let koruDao: KoruDao;
   let koruDaoNFT: KoruDaoNFT;
@@ -84,7 +83,6 @@ describe("KoruDao test", function () {
 
     sponsorAddress = await sponsor.getAddress();
     profileOwnerAddress = await profileOwner.getAddress();
-    nonProfileOwnerAddress = await nonProfileOwner.getAddress();
 
     koruDao = await ethers.getContract("KoruDao");
     koruDaoNFT = await ethers.getContract("KoruDaoNFT");
@@ -138,74 +136,33 @@ describe("KoruDao test", function () {
     );
   });
 
+  it("mint - only relay", async () => {
+    await expect(koruDaoNFT.connect(profileOwner).mint()).to.be.revertedWith(
+      "Restrictions: Only Gelato relay"
+    );
+  });
+
   it("mint - lens profile owner", async () => {
-    const mintData = koruDaoNFT.interface.encodeFunctionData("mint");
-    const { request, digest } = getReqAndDigest(
-      koruDaoNFT.address,
-      mintData,
-      profileOwnerAddress
-    );
+    await mint(profileOwner);
 
-    const sponsorSignature = ethers.utils.joinSignature(
-      sponsor._signingKey().signDigest(digest)
-    );
-    const userSignature = ethers.utils.joinSignature(
-      profileOwner._signingKey().signDigest(digest)
-    );
-
-    await gelatoMetaBox
-      .connect(gelato)
-      .metaTxRequestGasTankFee(
-        request,
-        userSignature,
-        sponsorSignature,
-        txFee,
-        taskId
-      );
     expect(await koruDaoNFT.balanceOf(profileOwnerAddress)).to.be.eql(
       ethers.BigNumber.from("1")
     );
   });
 
   it("mint - non lens profile owner", async () => {
-    const mintData = koruDaoNFT.interface.encodeFunctionData("mint");
-    const { request, digest } = getReqAndDigest(
-      koruDaoNFT.address,
-      mintData,
-      profileOwnerAddress
-    );
-
-    const sponsorSignature = ethers.utils.joinSignature(
-      sponsor._signingKey().signDigest(digest)
-    );
-    const userSignature = ethers.utils.joinSignature(
-      nonProfileOwner._signingKey().signDigest(digest)
-    );
-
-    await expect(
-      gelatoMetaBox
-        .connect(gelato)
-        .metaTxRequestGasTankFee(
-          request,
-          userSignature,
-          sponsorSignature,
-          txFee,
-          taskId
-        )
-    ).to.be.reverted;
+    await expect(mint(nonProfileOwner)).to.be.reverted;
   });
 
   it("mint - only one", async () => {
-    await koruDaoNFT.connect(profileOwner).mint();
+    await mint(profileOwner);
 
-    await expect(koruDaoNFT.connect(profileOwner).mint()).to.be.revertedWith(
-      "KoruDaoNFT: One per account"
-    );
+    await expect(mint(profileOwner)).to.be.reverted;
   });
 
   it("transfer - only one", async () => {
-    await koruDaoNFT.connect(profileOwner).mint();
-    await koruDaoNFT.connect(sponsor).mint();
+    await mint(profileOwner);
+    await mint(sponsor);
 
     const nftIndex = await koruDaoNFT.tokenOfOwnerByIndex(
       profileOwnerAddress,
@@ -219,22 +176,42 @@ describe("KoruDao test", function () {
     ).to.be.revertedWith("KoruDaoNFT: One per account");
   });
 
+  it("post - only relay", async () => {
+    const { postDataObj } = await getPostData();
+    await expect(
+      koruDao.connect(profileOwner).post(postDataObj)
+    ).to.be.revertedWith("Restrictions: Only Gelato relay");
+  });
+
   it("post - with koruDaoNFT", async () => {
-    await koruDaoNFT.connect(profileOwner).mint();
+    await mint(profileOwner);
+    await post(profileOwner);
+  });
 
-    const { postData } = await getPostData();
+  it("post - without koruDaoNFT", async () => {
+    await expect(post(profileOwner)).to.be.reverted;
+  });
 
-    const { request, digest } = getReqAndDigest(
-      koruDao.address,
-      postData,
-      profileOwnerAddress
+  it("post - too frequent", async () => {
+    await mint(profileOwner);
+    await post(profileOwner);
+
+    await expect(post(profileOwner)).to.be.reverted;
+  });
+
+  const mint = async (wallet: Wallet) => {
+    const mintData = koruDaoNFT.interface.encodeFunctionData("mint");
+    const { request, digest } = await getReqAndDigest(
+      koruDaoNFT.address,
+      mintData,
+      wallet.address
     );
 
     const sponsorSignature = ethers.utils.joinSignature(
       sponsor._signingKey().signDigest(digest)
     );
     const userSignature = ethers.utils.joinSignature(
-      profileOwner._signingKey().signDigest(digest)
+      wallet._signingKey().signDigest(digest)
     );
 
     await gelatoMetaBox
@@ -246,60 +223,42 @@ describe("KoruDao test", function () {
         txFee,
         taskId
       );
-  });
+  };
 
-  it("post - without koruDaoNFT", async () => {
-    await koruDaoNFT.connect(profileOwner).mint();
+  const post = async (wallet: Wallet) => {
+    const { postData } = await getPostData();
 
-    const { postData, postDataObj } = await getPostData();
-
-    const { request, digest } = getReqAndDigest(
+    const { request, digest } = await getReqAndDigest(
       koruDao.address,
       postData,
-      nonProfileOwnerAddress
+      wallet.address
     );
 
     const sponsorSignature = ethers.utils.joinSignature(
       sponsor._signingKey().signDigest(digest)
     );
     const userSignature = ethers.utils.joinSignature(
-      nonProfileOwner._signingKey().signDigest(digest)
+      wallet._signingKey().signDigest(digest)
     );
 
-    await expect(
-      gelatoMetaBox
-        .connect(gelato)
-        .metaTxRequestGasTankFee(
-          request,
-          userSignature,
-          sponsorSignature,
-          txFee,
-          taskId
-        )
-    ).to.be.reverted;
+    await gelatoMetaBox
+      .connect(gelato)
+      .metaTxRequestGasTankFee(
+        request,
+        userSignature,
+        sponsorSignature,
+        txFee,
+        taskId
+      );
+  };
 
-    await expect(koruDao.post(postDataObj)).to.be.revertedWith(
-      "KoruDao: No KoruDaoNft"
-    );
-  });
-
-  it("post - too frequent", async () => {
-    await koruDaoNFT.connect(profileOwner).mint();
-
-    const { postDataObj } = await getPostData();
-
-    await koruDao.connect(profileOwner).post(postDataObj);
-
-    await expect(
-      koruDao.connect(profileOwner).post(postDataObj)
-    ).to.be.revertedWith("KoruDao: Post too frequent");
-  });
-
-  const getReqAndDigest = (
+  const getReqAndDigest = async (
     target: string,
     data: string,
     userAddress: string
   ) => {
+    const nonce = Number(await gelatoMetaBox.nonce(userAddress));
+
     const metaTxRequest = GelatoRelaySDK.metaTxRequest(
       chainId,
       target,
@@ -309,7 +268,7 @@ describe("KoruDao test", function () {
       maxFee,
       gas,
       userAddress,
-      0,
+      nonce,
       sponsorAddress
     );
 

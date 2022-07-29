@@ -24,4 +24,6 @@ interface IGelatoMetaBox {
         uint256 _gelatoFee,
         bytes32 _taskId
     ) external;
+
+    function nonce(address _user) external view returns (uint256);
 }

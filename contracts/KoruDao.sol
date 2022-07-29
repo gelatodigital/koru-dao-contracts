@@ -8,22 +8,26 @@ import {
     ERC721Holder
 } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
-import {LensProfileOwner} from "./LensProfileOwner.sol";
+import {Restrictions} from "./Restrictions.sol";
 import {DataTypes} from "./libraries/LensDataTypes.sol";
 import {IERC721MetaTxEnumerable} from "./vendor/oz/IERC721MetaTxEnumerable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
-contract KoruDao is LensProfileOwner, ERC721Holder, ERC2771Context, Proxied {
+contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
     IERC721MetaTxEnumerable public immutable koruDaoNft;
     uint256 public immutable postInterval;
     mapping(address => uint256) public lastPost;
 
     constructor(
+        bool _restricted,
         IERC721MetaTxEnumerable _koruDaoNft,
         uint256 _postInterval,
         ILensHub _lensHub,
         address _gelatoRelay
-    ) LensProfileOwner(_lensHub) ERC2771Context(_gelatoRelay) {
+    )
+        Restrictions(_restricted, _lensHub, _gelatoRelay)
+        ERC2771Context(_gelatoRelay)
+    {
         koruDaoNft = _koruDaoNft;
         postInterval = _postInterval;
     }
@@ -31,6 +35,7 @@ contract KoruDao is LensProfileOwner, ERC721Holder, ERC2771Context, Proxied {
     //solhint-disable not-rely-on-time
     function post(DataTypes.PostData calldata _vars)
         external
+        onlyGelatoRelay(msg.sender)
         onlyLensProfileOwner(_msgSender())
     {
         address msgSender = _msgSender();
@@ -40,6 +45,10 @@ contract KoruDao is LensProfileOwner, ERC721Holder, ERC2771Context, Proxied {
 
         lensHub.post(_vars);
         lastPost[msgSender] = block.timestamp;
+    }
+
+    function setDefaultProfile(uint256 _profileId) external onlyProxyAdmin {
+        lensHub.setDefaultProfile(_profileId);
     }
 
     function canPost(address _user) public view returns (bool) {
