@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { sleep } from "../hardhat/utils";
 import {
-  getGelatoMetaBoxAddress,
+  getGelatoRelayAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
 import { ethers } from "hardhat";
@@ -13,7 +13,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await hre.getNamedAccounts();
 
   const lensHubAddress = getLensHubAddress(hre.network.name);
-  const gelatoMetaBoxAddress = getGelatoMetaBoxAddress(hre.network.name);
+  const gelatoRelayAddress = getGelatoRelayAddress();
 
   let hasRestrictions;
   let maxSupply;
@@ -39,7 +39,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       owner: deployer,
     },
-    args: [hasRestrictions, maxSupply, lensHubAddress, gelatoMetaBoxAddress],
+    args: [hasRestrictions, maxSupply, lensHubAddress, gelatoRelayAddress],
     gasPrice: ethers.utils.parseUnits("120", "gwei"),
   });
 };

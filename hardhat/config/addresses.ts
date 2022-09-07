@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
 
+export const getGelatoRelayAddress = (): string => {
+  return "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
+};
+
 export const getGelatoMetaBoxAddress = (network: string): string => {
   let chainId;
   switch (network) {
