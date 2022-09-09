@@ -19,7 +19,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let maxSupply;
   if (hre.network.name === "matic" || hre.network.name === "hardhat") {
     hasRestrictions = true;
-    maxSupply = 250;
+    maxSupply = 282;
   } else {
     hasRestrictions = false;
     maxSupply = 0;

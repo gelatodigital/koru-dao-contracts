@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC721MetaTx} from "./vendor/oz/ERC721MetaTx.sol";
 import {ERC721MetaTxEnumerable} from "./vendor/oz/ERC721MetaTxEnumerable.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
@@ -8,6 +9,8 @@ import {Restrictions} from "./Restrictions.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
 contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
+    using Strings for uint256;
+
     uint256 public immutable maxSupply;
     string public baseUri;
 
@@ -41,6 +44,37 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         baseUri = _baseUri;
     }
 
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
+        );
+
+        string memory baseURI = _baseURI();
+
+        return
+            bytes(baseURI).length > 0
+                ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json"))
+                : "";
+    }
+
+    function name() public pure override returns (string memory) {
+        return "Koru Dao";
+    }
+
+    function symbol() public pure override returns (string memory) {
+        return "KORUDAO";
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseUri;
+    }
+
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -49,10 +83,6 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         if (to != address(0)) _onlyOnePerAccount(to);
 
         super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseUri;
     }
 
     function _onlyOnePerAccount(address _account) private view {
