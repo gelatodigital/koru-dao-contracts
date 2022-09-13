@@ -34,7 +34,7 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
     {
         uint256 supplyTotal = totalSupply();
 
-        if (maxSupply > 0)
+        if (restricted)
             require(supplyTotal < maxSupply, "KoruDaoNFT: Max Supply");
 
         _safeMint(_msgSender(), supplyTotal + 1);
@@ -56,10 +56,13 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         );
 
         string memory baseURI = _baseURI();
+        uint256 uriId = !restricted && tokenId > maxSupply
+            ? (tokenId % maxSupply) + 1
+            : tokenId;
 
         return
             bytes(baseURI).length > 0
-                ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json"))
+                ? string(abi.encodePacked(baseURI, uriId.toString(), ".json"))
                 : "";
     }
 
