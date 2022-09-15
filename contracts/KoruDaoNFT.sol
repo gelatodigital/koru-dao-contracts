@@ -13,10 +13,17 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
 
     uint256 public immutable maxSupply;
     string public baseUri;
+    bool public paused;
+
+    modifier notPaused() {
+        require(!paused, "KoruDaoNFT: Paused");
+        _;
+    }
 
     //solhint-disable no-empty-blocks
     constructor(
         bool _restricted,
+        bool _paused,
         uint256 _maxSupply,
         ILensHub _lensHub,
         address _gelatoRelay
@@ -24,11 +31,13 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         Restrictions(_restricted, _lensHub, _gelatoRelay)
         ERC721MetaTx("Koru Dao NFT", "KORUDAO", _gelatoRelay)
     {
+        paused = _paused;
         maxSupply = _maxSupply;
     }
 
     function mint()
         external
+        notPaused
         onlyGelatoRelay(msg.sender)
         onlyLensProfileOwner(_msgSender())
     {
@@ -42,6 +51,10 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
 
     function setBaseUri(string memory _baseUri) external onlyProxyAdmin {
         baseUri = _baseUri;
+    }
+
+    function setPaused(bool _paused) external onlyProxyAdmin {
+        paused = _paused;
     }
 
     function tokenURI(uint256 tokenId)

@@ -16,11 +16,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const gelatoRelayAddress = getGelatoRelayAddress();
 
   let hasRestrictions;
+  let paused;
   let maxSupply;
   if (hre.network.name === "matic" || hre.network.name === "hardhat") {
+    paused = true;
     hasRestrictions = true;
     maxSupply = 282;
   } else {
+    paused = false;
     hasRestrictions = false;
     maxSupply = 282;
   }
@@ -29,6 +32,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     console.log(
       `Deploying KoruDaoNFT to ${hre.network.name}. Hit ctrl + c to abort`
     );
+
+    console.log("paused: ", paused);
     console.log("hasRestrictions: ", hasRestrictions);
     console.log("maxSupply: ", maxSupply);
     await sleep(10000);
@@ -39,16 +44,22 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       owner: deployer,
     },
-    args: [hasRestrictions, maxSupply, lensHubAddress, gelatoRelayAddress],
-    gasPrice: ethers.utils.parseUnits("120", "gwei"),
+    args: [
+      hasRestrictions,
+      paused,
+      maxSupply,
+      lensHubAddress,
+      gelatoRelayAddress,
+    ],
+    gasPrice: ethers.utils.parseUnits("300", "gwei"),
   });
 };
 
 export default func;
 
-func.skip = async (hre: HardhatRuntimeEnvironment) => {
-  const shouldSkip = hre.network.name !== "hardhat";
-  return shouldSkip;
-};
+// func.skip = async (hre: HardhatRuntimeEnvironment) => {
+//   const shouldSkip = hre.network.name !== "hardhat";
+//   return shouldSkip;
+// };
 
 func.tags = ["KoruDaoNFT"];
