@@ -5,7 +5,6 @@ import {
   getGelatoRelayAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
-import { ethers } from "hardhat";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
@@ -20,7 +19,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let hasRestrictions;
   let postInterval;
 
-  if (hre.network.name === "matic" || hre.network.name === "hardhat") {
+  if (hre.network.name === "matic") {
     hasRestrictions = true;
     postInterval = 24 * 60 * 60; // 24 hrs
   } else {
@@ -44,21 +43,20 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     },
     args: [
       hasRestrictions,
-      koruDaoNftAddress,
       postInterval,
-      lensHubAddress,
       gelatoRelayAddress,
+      koruDaoNftAddress,
+      lensHubAddress,
     ],
-    gasPrice: ethers.utils.parseUnits("120", "gwei"),
   });
 };
 
 export default func;
 
-func.skip = async (hre: HardhatRuntimeEnvironment) => {
-  const shouldSkip = hre.network.name !== "hardhat";
-  return shouldSkip;
-};
+// func.skip = async (hre: HardhatRuntimeEnvironment) => {
+//   const shouldSkip = hre.network.name !== "hardhat";
+//   return shouldSkip;
+// };
 
 func.tags = ["KoruDao"];
 func.dependencies = ["KoruDaoNFT"];

@@ -5,34 +5,34 @@ import {ILensHub} from "./interfaces/ILensHub.sol";
 
 abstract contract Restrictions {
     bool public immutable restricted;
-    ILensHub public immutable lensHub;
     address public immutable gelatoRelay;
+    ILensHub public immutable lensHub;
 
     modifier onlyLensProfileOwner(address sender) {
         if (restricted)
             require(
-                hasLensProfile(sender),
+                _hasLensProfile(sender),
                 "Restrictions: Only lens profile holder"
             );
         _;
     }
 
-    modifier onlyGelatoRelay(address sender) {
-        require(sender == gelatoRelay, "Restrictions: Only Gelato relay");
+    modifier onlyGelatoRelay() {
+        require(msg.sender == gelatoRelay, "Restrictions: Only Gelato relay");
         _;
     }
 
     constructor(
         bool _restricted,
-        ILensHub _lensHub,
-        address _gelatoRelay
+        address _gelatoRelay,
+        ILensHub _lensHub
     ) {
         restricted = _restricted;
         lensHub = _lensHub;
         gelatoRelay = _gelatoRelay;
     }
 
-    function hasLensProfile(address _wallet) public view returns (bool) {
+    function _hasLensProfile(address _wallet) internal view returns (bool) {
         return lensHub.balanceOf(_wallet) > 0;
     }
 }

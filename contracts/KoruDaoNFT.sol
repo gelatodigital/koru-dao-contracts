@@ -4,11 +4,11 @@ pragma solidity ^0.8.14;
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC721MetaTx} from "./vendor/oz/ERC721MetaTx.sol";
 import {ERC721MetaTxEnumerable} from "./vendor/oz/ERC721MetaTxEnumerable.sol";
+import {MintRestrictions} from "./MintRestrictions.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
-import {Restrictions} from "./Restrictions.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
-contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
+contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
     using Strings for uint256;
 
     uint256 public immutable maxSupply;
@@ -25,10 +25,20 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         bool _restricted,
         bool _paused,
         uint256 _maxSupply,
-        ILensHub _lensHub,
-        address _gelatoRelay
+        uint256 _koruDaoProfileId,
+        uint256 _minPubCount,
+        uint256 _minFollowers,
+        address _gelatoRelay,
+        ILensHub _lensHub
     )
-        Restrictions(_restricted, _lensHub, _gelatoRelay)
+        MintRestrictions(
+            _restricted,
+            _koruDaoProfileId,
+            _minPubCount,
+            _minFollowers,
+            _gelatoRelay,
+            _lensHub
+        )
         ERC721MetaTx("Koru Dao NFT", "KORUDAO", _gelatoRelay)
     {
         paused = _paused;
@@ -38,8 +48,8 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
     function mint()
         external
         notPaused
-        onlyGelatoRelay(msg.sender)
-        onlyLensProfileOwner(_msgSender())
+        onlyGelatoRelay
+        onlyEligible(_msgSender())
     {
         uint256 supplyTotal = totalSupply();
 
@@ -87,10 +97,6 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         return "KORUDAO";
     }
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseUri;
-    }
-
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -99,6 +105,10 @@ contract KoruDaoNFT is Restrictions, ERC721MetaTxEnumerable, Proxied {
         if (to != address(0)) _onlyOnePerAccount(to);
 
         super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseUri;
     }
 
     function _onlyOnePerAccount(address _account) private view {

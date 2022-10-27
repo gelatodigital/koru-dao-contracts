@@ -5,7 +5,6 @@ import {
   getGelatoRelayAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
-import { ethers } from "hardhat";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
@@ -18,14 +17,24 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let hasRestrictions;
   let paused;
   let maxSupply;
-  if (hre.network.name === "matic" || hre.network.name === "hardhat") {
+  let koruDaoProfileId;
+  let minPubCount;
+  let minFollowers;
+
+  if (hre.network.name === "matic") {
     paused = true;
     hasRestrictions = true;
     maxSupply = 282;
+    koruDaoProfileId = 42808;
+    minPubCount = 2;
+    minFollowers = 2;
   } else {
     paused = false;
     hasRestrictions = false;
     maxSupply = 282;
+    koruDaoProfileId = 16978;
+    minPubCount = 1;
+    minFollowers = 1;
   }
 
   if (hre.network.name !== "hardhat") {
@@ -36,6 +45,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     console.log("paused: ", paused);
     console.log("hasRestrictions: ", hasRestrictions);
     console.log("maxSupply: ", maxSupply);
+    console.log("koruDaoProfileId: ", koruDaoProfileId);
+    console.log("minPubCount: ", minPubCount);
+    console.log("minFollowers: ", minFollowers);
     await sleep(10000);
   }
 
@@ -48,10 +60,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       hasRestrictions,
       paused,
       maxSupply,
-      lensHubAddress,
+      koruDaoProfileId,
+      minPubCount,
+      minFollowers,
       gelatoRelayAddress,
+      lensHubAddress,
     ],
-    gasPrice: ethers.utils.parseUnits("300", "gwei"),
   });
 };
 

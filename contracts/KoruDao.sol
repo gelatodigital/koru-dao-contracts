@@ -20,12 +20,12 @@ contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
 
     constructor(
         bool _restricted,
-        IERC721MetaTxEnumerable _koruDaoNft,
         uint256 _postInterval,
-        ILensHub _lensHub,
-        address _gelatoRelay
+        address _gelatoRelay,
+        IERC721MetaTxEnumerable _koruDaoNft,
+        ILensHub _lensHub
     )
-        Restrictions(_restricted, _lensHub, _gelatoRelay)
+        Restrictions(_restricted, _gelatoRelay, _lensHub)
         ERC2771Context(_gelatoRelay)
     {
         koruDaoNft = _koruDaoNft;
@@ -35,7 +35,7 @@ contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
     //solhint-disable not-rely-on-time
     function post(DataTypes.PostData calldata _vars)
         external
-        onlyGelatoRelay(msg.sender)
+        onlyGelatoRelay
         onlyLensProfileOwner(_msgSender())
     {
         address msgSender = _msgSender();

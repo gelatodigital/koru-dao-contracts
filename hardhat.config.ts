@@ -20,14 +20,6 @@ assert.ok(ALCHEMY_ID, "no Alchemy ID in process.env");
 // @dev fill this out
 const PK = process.env.PK;
 const ETHERSCAN_API = process.env.ETHERSCAN_MATIC_API;
-// ETHERSCAN_MATIC_API;
-// ETHERSCAN_FANTOM_API;
-// ETHERSCAN_ARBITRUM_API;
-// ETHERSCAN_BSC_API;
-// ETHERSCAN_AVALANCHE_API;
-// ETHERSCAN_OPTIMISM_API
-// ETHERSCAN_MOONBEAM_API
-// ETHERSCAN_MOONRIVER_API
 
 // ================================= CONFIG =========================================
 const config: HardhatUserConfig = {
