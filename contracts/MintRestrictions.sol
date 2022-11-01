@@ -43,6 +43,10 @@ abstract contract MintRestrictions is Restrictions {
         returns (bool, bool[] memory)
     {
         uint256 profileId = lensHub.defaultProfile(_wallet);
+        require(
+            profileId != 0,
+            "MintRestrictions: Wallet does not have default profile"
+        );
 
         bool eligible = true;
         bool[] memory unmetCriterias = new bool[](4);
@@ -68,11 +72,10 @@ abstract contract MintRestrictions is Restrictions {
     }
 
     function _isFollowingKoruDao(address _wallet) private view returns (bool) {
-        IERC721Enumerable followNFT = IERC721Enumerable(
-            lensHub.getFollowNFT(koruDaoProfileId)
-        );
+        address followNFT = lensHub.getFollowNFT(koruDaoProfileId);
+        if (followNFT == address(0)) return false;
 
-        return followNFT.balanceOf(_wallet) > 0;
+        return IERC721Enumerable(followNFT).balanceOf(_wallet) > 0;
     }
 
     function _hasMinPublish(uint256 _profileId) private view returns (bool) {
@@ -82,11 +85,11 @@ abstract contract MintRestrictions is Restrictions {
     }
 
     function _hasMinFollower(uint256 _profileId) private view returns (bool) {
-        IERC721Enumerable followNFT = IERC721Enumerable(
-            lensHub.getFollowNFT(_profileId)
-        );
+        address followNFT = lensHub.getFollowNFT(_profileId);
 
-        uint256 followers = followNFT.totalSupply();
+        if (followNFT == address(0)) return false;
+
+        uint256 followers = IERC721Enumerable(followNFT).totalSupply();
         return followers >= minFollowers;
     }
 }
