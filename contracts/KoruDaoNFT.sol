@@ -51,12 +51,14 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
         onlyGelatoRelay
         onlyEligible(_msgSender())
     {
-        uint256 supplyTotal = totalSupply();
+        _mint(_msgSender());
+    }
 
-        if (restricted)
-            require(supplyTotal < maxSupply, "KoruDaoNFT: Max Supply");
-
-        _safeMint(_msgSender(), supplyTotal + 1);
+    function ownerMint(address[] calldata _users) external onlyProxyAdmin {
+        uint256 length = _users.length;
+        for (uint256 i; i < length; i++) {
+            _mint(_users[i]);
+        }
     }
 
     function setBaseUri(string memory _baseUri) external onlyProxyAdmin {
@@ -95,6 +97,15 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
 
     function symbol() public pure override returns (string memory) {
         return "KORUDAO";
+    }
+
+    function _mint(address _user) internal {
+        uint256 supplyTotal = totalSupply();
+
+        if (restricted)
+            require(supplyTotal < maxSupply, "KoruDaoNFT: Max Supply");
+
+        _safeMint(_user, supplyTotal + 1);
     }
 
     function _beforeTokenTransfer(
