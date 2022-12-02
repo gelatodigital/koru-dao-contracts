@@ -22,6 +22,18 @@ export const getGelatoMetaBoxAddress = (network: string): string => {
   const { address } = GelatoRelaySDK.getMetaBoxAddressAndABI(chainId);
   return address;
 };
+
+export const getGelatoRelayV0TransitAddress = (network: string): string => {
+  switch (network) {
+    case "matic":
+      return "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE";
+    case "mumbai":
+      return "0x24D677f8A59A486BfC6d87E9453C4f1fEfcB0958";
+    default:
+      throw new Error("No gelato relay v0 transit address");
+  }
+};
+
 export const getLensHubAddress = (network: string): string => {
   const LENS_HUB_MATIC = "0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d";
   const LENS_HUB_MUMBAI = "0x60Ae865ee4C725cd04353b5AAb364553f56ceF82";

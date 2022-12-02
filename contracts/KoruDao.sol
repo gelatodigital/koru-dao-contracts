@@ -18,6 +18,8 @@ contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
     uint256 public immutable postInterval;
     mapping(address => uint256) public lastPost;
 
+    event LogPost(address user, uint256 time, DataTypes.PostData _postVars);
+
     constructor(
         bool _restricted,
         uint256 _postInterval,
@@ -33,7 +35,7 @@ contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
     }
 
     //solhint-disable not-rely-on-time
-    function post(DataTypes.PostData calldata _vars)
+    function post(DataTypes.PostData calldata _postVars)
         external
         onlyGelatoRelay
         onlyLensProfileOwner(_msgSender())
@@ -43,8 +45,10 @@ contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
         require(koruDaoNft.balanceOf(msgSender) > 0, "KoruDao: No KoruDaoNft");
         require(canPost(msgSender), "KoruDao: Post too frequent");
 
-        lensHub.post(_vars);
+        lensHub.post(_postVars);
         lastPost[msgSender] = block.timestamp;
+
+        emit LogPost(msgSender, block.timestamp, _postVars);
     }
 
     function setDefaultProfile(uint256 _profileId) external onlyProxyAdmin {

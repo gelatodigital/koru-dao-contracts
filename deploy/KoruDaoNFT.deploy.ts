@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { sleep } from "../hardhat/utils";
 import {
-  getGelatoRelayAddress,
+  // getGelatoRelayAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
 
@@ -12,7 +12,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await hre.getNamedAccounts();
 
   const lensHubAddress = getLensHubAddress(hre.network.name);
-  const gelatoRelayAddress = getGelatoRelayAddress();
+  // const gelatoRelayAddress = getGelatoRelayAddress();
+  const gelatoRelayAddress = (
+    await hre.ethers.getContract("KoruDaoRelayTransit")
+  ).address; // using relay v0
 
   let hasRestrictions;
   let paused;
@@ -30,7 +33,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     minFollowers = 2;
   } else {
     paused = false;
-    hasRestrictions = true;
+    hasRestrictions = false;
     maxSupply = 282;
     koruDaoProfileId = 16978;
     minPubCount = 2;

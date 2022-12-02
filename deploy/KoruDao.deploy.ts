@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { sleep } from "../hardhat/utils";
 import {
-  getGelatoRelayAddress,
+  // getGelatoRelayAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
 
@@ -12,7 +12,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await hre.getNamedAccounts();
 
   const lensHubAddress = getLensHubAddress(hre.network.name);
-  const gelatoRelayAddress = getGelatoRelayAddress();
+
+  // const gelatoRelayAddress = getGelatoRelayAddress();
+  const gelatoRelayAddress = (
+    await hre.ethers.getContract("KoruDaoRelayTransit")
+  ).address; // using relay v0
+
   const koruDaoNftAddress = (await hre.ethers.getContract("KoruDaoNFT"))
     .address;
 
@@ -53,10 +58,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
 export default func;
 
-// func.skip = async (hre: HardhatRuntimeEnvironment) => {
-//   const shouldSkip = hre.network.name !== "hardhat";
-//   return shouldSkip;
-// };
+func.skip = async (hre: HardhatRuntimeEnvironment) => {
+  const shouldSkip = hre.network.name !== "hardhat";
+  return shouldSkip;
+};
 
 func.tags = ["KoruDao"];
 func.dependencies = ["KoruDaoNFT"];
