@@ -8,55 +8,65 @@ import {
     ERC721Holder
 } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
-import {Restrictions} from "./Restrictions.sol";
 import {DataTypes} from "./libraries/LensDataTypes.sol";
 import {IERC721MetaTxEnumerable} from "./vendor/oz/IERC721MetaTxEnumerable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
-contract KoruDao is Restrictions, ERC721Holder, ERC2771Context, Proxied {
-    IERC721MetaTxEnumerable public immutable koruDaoNft;
+//solhint-disable not-rely-on-time
+contract KoruDao is ERC721Holder, ERC2771Context, Proxied {
     uint256 public immutable postInterval;
-    mapping(address => uint256) public lastPost;
+    IERC721MetaTxEnumerable public immutable koruDaoNft;
+    ILensHub public immutable lensHub;
+    mapping(uint256 => uint256) public lastPost;
 
-    event LogPost(address user, uint256 time, DataTypes.PostData _postVars);
+    event LogPost(
+        address indexed user,
+        uint256 indexed token,
+        uint256 indexed pubId,
+        uint256 time
+    );
+
+    modifier onlyGelatoRelay() {
+        require(isTrustedForwarder(msg.sender), "KoruDao: Only GelatoRelay");
+        _;
+    }
 
     constructor(
-        bool _restricted,
         uint256 _postInterval,
         address _gelatoRelay,
         IERC721MetaTxEnumerable _koruDaoNft,
         ILensHub _lensHub
-    )
-        Restrictions(_restricted, _gelatoRelay, _lensHub)
-        ERC2771Context(_gelatoRelay)
-    {
-        koruDaoNft = _koruDaoNft;
+    ) ERC2771Context(_gelatoRelay) {
         postInterval = _postInterval;
+        koruDaoNft = _koruDaoNft;
+        lensHub = _lensHub;
     }
 
-    //solhint-disable not-rely-on-time
     function post(DataTypes.PostData calldata _postVars)
         external
         onlyGelatoRelay
-        onlyLensProfileOwner(_msgSender())
     {
         address msgSender = _msgSender();
 
         require(koruDaoNft.balanceOf(msgSender) > 0, "KoruDao: No KoruDaoNft");
-        require(canPost(msgSender), "KoruDao: Post too frequent");
 
-        lensHub.post(_postVars);
-        lastPost[msgSender] = block.timestamp;
+        uint256 token = koruDaoNft.tokenOfOwnerByIndex(msgSender, 0);
 
-        emit LogPost(msgSender, block.timestamp, _postVars);
+        require(canPost(token), "KoruDao: Post too frequent");
+
+        uint256 pubId = lensHub.post(_postVars);
+
+        lastPost[token] = block.timestamp;
+
+        emit LogPost(msgSender, token, pubId, block.timestamp);
     }
 
     function setDefaultProfile(uint256 _profileId) external onlyProxyAdmin {
         lensHub.setDefaultProfile(_profileId);
     }
 
-    function canPost(address _user) public view returns (bool) {
-        if (block.timestamp - lastPost[_user] >= postInterval) return true;
+    function canPost(uint256 _token) public view returns (bool) {
+        if (block.timestamp - lastPost[_token] >= postInterval) return true;
 
         return false;
     }

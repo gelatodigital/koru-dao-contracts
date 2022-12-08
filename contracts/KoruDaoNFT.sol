@@ -20,10 +20,14 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
         _;
     }
 
+    modifier onlyGelatoRelay() {
+        require(isTrustedForwarder(msg.sender), "KoruDao: Only GelatoRelay");
+        _;
+    }
+
     //solhint-disable no-empty-blocks
     constructor(
         bool _restricted,
-        bool _paused,
         uint256 _maxSupply,
         uint256 _koruDaoProfileId,
         uint256 _minPubCount,
@@ -36,12 +40,10 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
             _koruDaoProfileId,
             _minPubCount,
             _minFollowers,
-            _gelatoRelay,
             _lensHub
         )
         ERC721MetaTx("Koru Dao NFT", "KORUDAO", _gelatoRelay)
     {
-        paused = _paused;
         maxSupply = _maxSupply;
     }
 

@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
-import {Restrictions} from "./Restrictions.sol";
 import {
     IERC721Enumerable
 } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
-abstract contract MintRestrictions is Restrictions {
+abstract contract MintRestrictions {
+    bool public immutable restricted;
     uint256 public immutable koruDaoProfileId;
     uint256 public immutable minPubCount;
     uint256 public immutable minFollowers;
+    ILensHub public immutable lensHub;
 
     modifier onlyEligible(address sender) {
         if (restricted) {
@@ -29,12 +30,13 @@ abstract contract MintRestrictions is Restrictions {
         uint256 _koruDaoProfileId,
         uint256 _minPubCount,
         uint256 _minFollowers,
-        address _gelatoRelay,
         ILensHub _lensHub
-    ) Restrictions(_restricted, _gelatoRelay, _lensHub) {
+    ) {
+        restricted = _restricted;
         koruDaoProfileId = _koruDaoProfileId;
         minPubCount = _minPubCount;
         minFollowers = _minFollowers;
+        lensHub = _lensHub;
     }
 
     function isEligible(address _wallet)
@@ -69,6 +71,10 @@ abstract contract MintRestrictions is Restrictions {
         }
 
         return (eligible, unmetCriterias);
+    }
+
+    function _hasLensProfile(address _wallet) private view returns (bool) {
+        return lensHub.balanceOf(_wallet) > 0;
     }
 
     function _isFollowingKoruDao(address _wallet) private view returns (bool) {

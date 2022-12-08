@@ -18,21 +18,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   ).address; // using relay v0
 
   let hasRestrictions;
-  let paused;
   let maxSupply;
   let koruDaoProfileId;
   let minPubCount;
   let minFollowers;
 
   if (hre.network.name === "matic") {
-    paused = true;
     hasRestrictions = true;
     maxSupply = 282;
     koruDaoProfileId = 42808;
     minPubCount = 2;
     minFollowers = 2;
   } else {
-    paused = false;
     hasRestrictions = false;
     maxSupply = 282;
     koruDaoProfileId = 16978;
@@ -45,7 +42,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       `Deploying KoruDaoNFT to ${hre.network.name}. Hit ctrl + c to abort`
     );
 
-    console.log("paused: ", paused);
     console.log("hasRestrictions: ", hasRestrictions);
     console.log("maxSupply: ", maxSupply);
     console.log("koruDaoProfileId: ", koruDaoProfileId);
@@ -61,7 +57,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     },
     args: [
       hasRestrictions,
-      paused,
       maxSupply,
       koruDaoProfileId,
       minPubCount,

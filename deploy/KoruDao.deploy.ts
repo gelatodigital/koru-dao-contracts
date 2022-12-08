@@ -21,14 +21,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const koruDaoNftAddress = (await hre.ethers.getContract("KoruDaoNFT"))
     .address;
 
-  let hasRestrictions;
   let postInterval;
 
   if (hre.network.name === "matic") {
-    hasRestrictions = true;
     postInterval = 24 * 60 * 60; // 24 hrs
   } else {
-    hasRestrictions = false;
     postInterval = 10 * 60; // 10 min
   }
 
@@ -36,7 +33,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     console.log(
       `Deploying KoruDao to ${hre.network.name}. Hit ctrl + c to abort`
     );
-    console.log("hasRestrictions: ", hasRestrictions);
     console.log("postInterval: ", postInterval);
     await sleep(10000);
   }
@@ -46,13 +42,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       owner: deployer,
     },
-    args: [
-      hasRestrictions,
-      postInterval,
-      gelatoRelayAddress,
-      koruDaoNftAddress,
-      lensHubAddress,
-    ],
+    args: [postInterval, gelatoRelayAddress, koruDaoNftAddress, lensHubAddress],
   });
 };
 
