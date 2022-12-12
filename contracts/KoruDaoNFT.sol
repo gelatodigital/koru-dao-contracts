@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
-
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ERC721MetaTx} from "./vendor/oz/ERC721MetaTx.sol";
-import {ERC721MetaTxEnumerable} from "./vendor/oz/ERC721MetaTxEnumerable.sol";
+import {
+    ERC721MetaTxEnumerableUpgradeable
+} from "./ERC721MetaTxEnumerableUpgradeable.sol";
 import {MintRestrictions} from "./MintRestrictions.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
-contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
+contract KoruDaoNFT is
+    MintRestrictions,
+    ERC721MetaTxEnumerableUpgradeable,
+    Proxied
+{
     using Strings for uint256;
 
     uint256 public immutable maxSupply;
@@ -20,12 +24,6 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
         _;
     }
 
-    modifier onlyGelatoRelay() {
-        require(isTrustedForwarder(msg.sender), "KoruDao: Only GelatoRelay");
-        _;
-    }
-
-    //solhint-disable no-empty-blocks
     constructor(
         bool _restricted,
         uint256 _maxSupply,
@@ -42,9 +40,20 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
             _minFollowers,
             _lensHub
         )
-        ERC721MetaTx("Koru Dao NFT", "KORUDAO", _gelatoRelay)
+        ERC721MetaTxEnumerableUpgradeable(_gelatoRelay)
     {
         maxSupply = _maxSupply;
+    }
+
+    function initialize(
+        string calldata _name,
+        string calldata _symbol,
+        string calldata _baseUri,
+        bool _paused
+    ) external initializer {
+        __ERC721MetaTxEnumerableUpgradeable_init(_name, _symbol);
+        baseUri = _baseUri;
+        paused = _paused;
     }
 
     function mint()
@@ -91,14 +100,6 @@ contract KoruDaoNFT is MintRestrictions, ERC721MetaTxEnumerable, Proxied {
             bytes(baseURI).length > 0
                 ? string(abi.encodePacked(baseURI, uriId.toString(), ".json"))
                 : "";
-    }
-
-    function name() public pure override returns (string memory) {
-        return "Koru Dao";
-    }
-
-    function symbol() public pure override returns (string memory) {
-        return "KORUDAO";
     }
 
     function _mint(address _user) internal {

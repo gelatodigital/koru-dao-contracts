@@ -2,3 +2,4 @@ node_modules/
 contracts/interfaces
 contracts/libraries
 contracts/vendor
+contracts/ERC721MetaTxEnumerableUpgradeable.sol

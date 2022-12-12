@@ -9,13 +9,15 @@ import {
 } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
 import {DataTypes} from "./libraries/LensDataTypes.sol";
-import {IERC721MetaTxEnumerable} from "./vendor/oz/IERC721MetaTxEnumerable.sol";
+import {
+    IERC721MetaTxEnumerableUpgradeable
+} from "./interfaces/IERC721MetaTxEnumerableUpgradeable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
 //solhint-disable not-rely-on-time
 contract KoruDao is ERC721Holder, ERC2771Context, Proxied {
     uint256 public immutable postInterval;
-    IERC721MetaTxEnumerable public immutable koruDaoNft;
+    IERC721MetaTxEnumerableUpgradeable public immutable koruDaoNft;
     ILensHub public immutable lensHub;
     mapping(uint256 => uint256) public lastPost;
 
@@ -34,7 +36,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied {
     constructor(
         uint256 _postInterval,
         address _gelatoRelay,
-        IERC721MetaTxEnumerable _koruDaoNft,
+        IERC721MetaTxEnumerableUpgradeable _koruDaoNft,
         ILensHub _lensHub
     ) ERC2771Context(_gelatoRelay) {
         postInterval = _postInterval;

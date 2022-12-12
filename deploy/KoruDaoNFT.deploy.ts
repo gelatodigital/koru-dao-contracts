@@ -17,24 +17,27 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await hre.ethers.getContract("KoruDaoRelayTransit")
   ).address; // using relay v0
 
+  const baseUri =
+    "https://koru.infura-ipfs.io/ipfs/QmNZgnFPcuTStG8hL938h82A7Q8NHrtzA2Mjpc3anz6E31/";
+  const isPaused = false;
+
+  const maxSupply = 282;
+
   let hasRestrictions;
-  let maxSupply;
   let koruDaoProfileId;
   let minPubCount;
   let minFollowers;
 
   if (hre.network.name === "matic") {
     hasRestrictions = true;
-    maxSupply = 282;
     koruDaoProfileId = 42808;
     minPubCount = 2;
     minFollowers = 2;
   } else {
     hasRestrictions = false;
-    maxSupply = 282;
     koruDaoProfileId = 16978;
-    minPubCount = 2;
-    minFollowers = 2;
+    minPubCount = 0;
+    minFollowers = 0;
   }
 
   if (hre.network.name !== "hardhat") {
@@ -54,6 +57,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     from: deployer,
     proxy: {
       owner: deployer,
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: ["Koru Dao NFT", "KORUDAO", baseUri, isPaused],
+        },
+      },
     },
     args: [
       hasRestrictions,

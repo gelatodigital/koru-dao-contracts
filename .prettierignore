@@ -6,3 +6,4 @@ coverage
 typechain
 yarn.lock
 yarn-error.log
+contracts/vendor/opensea
