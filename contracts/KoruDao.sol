@@ -48,9 +48,9 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         IKoruDaoRestriction restriction = _isActive(Action.POST);
 
-        uint256 pubId = lensHub.post(_postData);
-
         restriction.checkAndUpdateRestriction(token, uint256(Action.POST));
+
+        uint256 pubId = lensHub.post(_postData);
 
         emit LogPost(user, token, pubId, block.timestamp);
     }
@@ -66,6 +66,8 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         IKoruDaoRestriction restriction = _isActive(Action.FOLLOW);
 
+        restriction.checkAndUpdateRestriction(token, uint256(Action.FOLLOW));
+
         uint256[] memory profileIds = new uint256[](1);
         bytes[] memory followDatas = new bytes[](1);
 
@@ -76,8 +78,6 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
             profileIds,
             followDatas
         );
-
-        restriction.checkAndUpdateRestriction(token, uint256(Action.FOLLOW));
 
         emit LogFollow(user, token, followTokenIds, block.timestamp);
     }
@@ -93,9 +93,9 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         IKoruDaoRestriction restriction = _isActive(Action.MIRROR);
 
-        uint256 pubId = lensHub.mirror(_mirrorData);
-
         restriction.checkAndUpdateRestriction(token, uint256(Action.MIRROR));
+
+        uint256 pubId = lensHub.mirror(_mirrorData);
 
         emit LogMirror(user, token, pubId, block.timestamp);
     }
