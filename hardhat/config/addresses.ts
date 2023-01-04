@@ -2,7 +2,8 @@
 import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
 
 export const getGelatoRelayAddress = (): string => {
-  return "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
+  //GelatoRelayERC2771
+  return "0xBf175FCC7086b4f9bd59d5EAE8eA67b8f940DE0d";
 };
 
 export const getGelatoMetaBoxAddress = (network: string): string => {
