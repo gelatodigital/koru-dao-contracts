@@ -18,13 +18,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   if (hre.network.name !== "hardhat") {
     console.log(
-      `Deploying KoruDaoTimeRestriction to ${hre.network.name}. Hit ctrl + c to abort`
+      `Deploying TimeRestrictionForPosting to ${hre.network.name}. Hit ctrl + c to abort`
     );
     console.log("actionInterval: ", actionInterval);
     await sleep(10000);
   }
 
-  await deploy("KoruDaoTimeRestriction", {
+  await deploy("TimeRestrictionForPosting", {
     from: deployer,
     proxy: {
       owner: deployer,
@@ -40,4 +40,4 @@ func.skip = async (hre: HardhatRuntimeEnvironment) => {
   return shouldSkip;
 };
 
-func.tags = ["KoruDaoTimeRestriction"];
+func.tags = ["TimeRestrictionForPosting"];
