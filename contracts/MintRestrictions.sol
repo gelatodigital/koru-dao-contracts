@@ -6,6 +6,7 @@ import {
 } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
+//solhint-disable code-complexity
 abstract contract MintRestrictions {
     bool public immutable restricted;
     uint256 public immutable koruDaoProfileId;
@@ -44,6 +45,8 @@ abstract contract MintRestrictions {
         view
         returns (bool, bool[] memory)
     {
+        if (!restricted) return (true, new bool[](4));
+
         uint256 profileId = lensHub.defaultProfile(_wallet);
         require(
             profileId != 0,
