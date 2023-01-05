@@ -9,16 +9,12 @@ import {
 } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {Proxied} from "./vendor/proxy/EIP173/Proxied.sol";
 import {DataTypes} from "./libraries/LensDataTypes.sol";
-import {
-    IERC721MetaTxEnumerableUpgradeable
-} from "./interfaces/IERC721MetaTxEnumerableUpgradeable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 import {IKoruDao} from "./interfaces/IKoruDao.sol";
 import {IKoruDaoRestriction} from "./interfaces/IKoruDaoRestriction.sol";
 
 //solhint-disable not-rely-on-time
 contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
-    IERC721MetaTxEnumerableUpgradeable public immutable koruDaoNft;
     ILensHub public immutable lensHub;
 
     mapping(Action => address) public actionRestriction;
@@ -28,12 +24,9 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
         _;
     }
 
-    constructor(
-        address _gelatoRelay,
-        IERC721MetaTxEnumerableUpgradeable _koruDaoNft,
-        ILensHub _lensHub
-    ) ERC2771Context(_gelatoRelay) {
-        koruDaoNft = _koruDaoNft;
+    constructor(address _gelatoRelay, ILensHub _lensHub)
+        ERC2771Context(_gelatoRelay)
+    {
         lensHub = _lensHub;
     }
 
@@ -44,11 +37,12 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     {
         address user = _msgSender();
 
-        uint256 token = getKoruDaoNftTokenId(user);
-
         IKoruDaoRestriction restriction = _isActive(Action.POST);
 
-        restriction.checkAndUpdateRestriction(token, uint256(Action.POST));
+        uint256 token = restriction.checkAndUpdateRestriction(
+            user,
+            uint256(Action.POST)
+        );
 
         uint256 pubId = lensHub.post(_postData);
 
@@ -62,11 +56,12 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     {
         address user = _msgSender();
 
-        uint256 token = getKoruDaoNftTokenId(user);
-
         IKoruDaoRestriction restriction = _isActive(Action.FOLLOW);
 
-        restriction.checkAndUpdateRestriction(token, uint256(Action.FOLLOW));
+        uint256 token = restriction.checkAndUpdateRestriction(
+            user,
+            uint256(Action.FOLLOW)
+        );
 
         uint256[] memory profileIds = new uint256[](1);
         bytes[] memory followDatas = new bytes[](1);
@@ -89,11 +84,12 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     {
         address user = _msgSender();
 
-        uint256 token = getKoruDaoNftTokenId(user);
-
         IKoruDaoRestriction restriction = _isActive(Action.MIRROR);
 
-        restriction.checkAndUpdateRestriction(token, uint256(Action.MIRROR));
+        uint256 token = restriction.checkAndUpdateRestriction(
+            user,
+            uint256(Action.MIRROR)
+        );
 
         uint256 pubId = lensHub.mirror(_mirrorData);
 
@@ -109,17 +105,6 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
     function setDefaultProfile(uint256 _profileId) external onlyProxyAdmin {
         lensHub.setDefaultProfile(_profileId);
-    }
-
-    function getKoruDaoNftTokenId(address _user)
-        public
-        view
-        override
-        returns (uint256 token)
-    {
-        require(koruDaoNft.balanceOf(_user) > 0, "KoruDao: No KoruDaoNft");
-
-        token = koruDaoNft.tokenOfOwnerByIndex(_user, 0);
     }
 
     function _isActive(Action _action)

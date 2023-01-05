@@ -15,9 +15,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const gelatoRelayAddress = getGelatoRelayAddress();
 
-  const koruDaoNftAddress = (await hre.ethers.getContract("KoruDaoNFT"))
-    .address;
-
   if (hre.network.name !== "hardhat") {
     console.log(
       `Deploying KoruDao to ${hre.network.name}. Hit ctrl + c to abort`
@@ -30,7 +27,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       owner: deployer,
     },
-    args: [gelatoRelayAddress, koruDaoNftAddress, lensHubAddress],
+    args: [gelatoRelayAddress, lensHubAddress],
   });
 };
 

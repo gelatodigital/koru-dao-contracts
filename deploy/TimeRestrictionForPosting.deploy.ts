@@ -8,6 +8,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await hre.getNamedAccounts();
 
   const koruDaoAddress = (await hre.ethers.getContract("KoruDao")).address;
+  const koruDaoNftAddress = (await hre.ethers.getContract("KoruDaoNFT"))
+    .address;
 
   let actionInterval;
   if (hre.network.name === "matic") {
@@ -29,7 +31,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       owner: deployer,
     },
-    args: [actionInterval, koruDaoAddress],
+    args: [actionInterval, koruDaoAddress, koruDaoNftAddress],
   });
 };
 

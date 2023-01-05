@@ -36,9 +36,4 @@ interface IKoruDao {
     function follow(uint256 _profileId, bytes calldata _followData) external;
 
     function mirror(DataTypes.MirrorData calldata _mirrorData) external;
-
-    function getKoruDaoNftTokenId(address _user)
-        external
-        view
-        returns (uint256 token);
 }
