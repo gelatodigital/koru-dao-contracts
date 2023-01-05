@@ -26,6 +26,7 @@ export const getGelatoMetaBoxAddress = (network: string): string => {
 
 export const getGelatoRelayV0TransitAddress = (network: string): string => {
   switch (network) {
+    case "hardhat":
     case "matic":
       return "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE";
     case "mumbai":
