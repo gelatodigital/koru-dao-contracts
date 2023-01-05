@@ -40,10 +40,10 @@ export const getLensHubAddress = (network: string): string => {
   const LENS_HUB_MUMBAI = "0x60Ae865ee4C725cd04353b5AAb364553f56ceF82";
 
   switch (network) {
+    case "hardhat":
     case "matic":
       return LENS_HUB_MATIC;
     case "mumbai":
-    case "hardhat":
       return LENS_HUB_MUMBAI;
     default:
       throw new Error("No lens hub address for network");
