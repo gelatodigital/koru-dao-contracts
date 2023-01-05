@@ -2,7 +2,8 @@
 import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
 
 export const getGelatoRelayAddress = (): string => {
-  return "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92";
+  //GelatoRelayERC2771
+  return "0xBf175FCC7086b4f9bd59d5EAE8eA67b8f940DE0d";
 };
 
 export const getGelatoMetaBoxAddress = (network: string): string => {
@@ -25,6 +26,7 @@ export const getGelatoMetaBoxAddress = (network: string): string => {
 
 export const getGelatoRelayV0TransitAddress = (network: string): string => {
   switch (network) {
+    case "hardhat":
     case "matic":
       return "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE";
     case "mumbai":
@@ -39,10 +41,10 @@ export const getLensHubAddress = (network: string): string => {
   const LENS_HUB_MUMBAI = "0x60Ae865ee4C725cd04353b5AAb364553f56ceF82";
 
   switch (network) {
+    case "hardhat":
     case "matic":
       return LENS_HUB_MATIC;
     case "mumbai":
-    case "hardhat":
       return LENS_HUB_MUMBAI;
     default:
       throw new Error("No lens hub address for network");

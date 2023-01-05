@@ -1,33 +1,37 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { sleep } from "../hardhat/utils";
-import {
-  getGelatoRelayAddress,
-  getLensHubAddress,
-} from "../hardhat/config/addresses";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
   const { deploy } = deployments;
   const { deployer } = await hre.getNamedAccounts();
 
-  const lensHubAddress = getLensHubAddress(hre.network.name);
+  const koruDaoAddress = (await hre.ethers.getContract("KoruDao")).address;
+  const koruDaoNftAddress = (await hre.ethers.getContract("KoruDaoNFT"))
+    .address;
 
-  const gelatoRelayAddress = getGelatoRelayAddress();
+  let actionInterval;
+  if (hre.network.name === "matic") {
+    actionInterval = 24 * 60 * 60; // 24 hrs
+  } else {
+    actionInterval = 5 * 60; // 5 min
+  }
 
   if (hre.network.name !== "hardhat") {
     console.log(
-      `Deploying KoruDao to ${hre.network.name}. Hit ctrl + c to abort`
+      `Deploying TimeRestrictionForPosting to ${hre.network.name}. Hit ctrl + c to abort`
     );
+    console.log("actionInterval: ", actionInterval);
     await sleep(10000);
   }
 
-  await deploy("KoruDao", {
+  await deploy("TimeRestrictionForPosting", {
     from: deployer,
     proxy: {
       owner: deployer,
     },
-    args: [gelatoRelayAddress, lensHubAddress],
+    args: [actionInterval, koruDaoAddress, koruDaoNftAddress],
   });
 };
 
@@ -38,5 +42,4 @@ func.skip = async (hre: HardhatRuntimeEnvironment) => {
   return shouldSkip;
 };
 
-func.tags = ["KoruDao"];
-func.dependencies = ["KoruDaoNFT"];
+func.tags = ["TimeRestrictionForPosting"];

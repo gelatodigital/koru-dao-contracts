@@ -6,6 +6,7 @@ import {
 } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import {ILensHub} from "./interfaces/ILensHub.sol";
 
+//solhint-disable code-complexity
 abstract contract MintRestrictions {
     bool public immutable restricted;
     uint256 public immutable koruDaoProfileId;
@@ -13,12 +14,12 @@ abstract contract MintRestrictions {
     uint256 public immutable minFollowers;
     ILensHub public immutable lensHub;
 
-    modifier onlyEligible(address sender) {
+    modifier onlyEligible(address _wallet) {
         if (restricted) {
-            (bool eligible, ) = isEligible(sender);
+            (bool eligible, ) = isEligible(_wallet);
             require(
                 eligible,
-                "MintRestrictions: Sender does not meet criteria"
+                "MintRestrictions: Wallet does not meet criteria"
             );
         }
 
@@ -44,6 +45,8 @@ abstract contract MintRestrictions {
         view
         returns (bool, bool[] memory)
     {
+        if (!restricted) return (true, new bool[](4));
+
         uint256 profileId = lensHub.defaultProfile(_wallet);
         require(
             profileId != 0,

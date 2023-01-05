@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { sleep } from "../hardhat/utils";
 import {
-  // getGelatoRelayAddress,
+  getGelatoRelayAddress,
   getLensHubAddress,
 } from "../hardhat/config/addresses";
 
@@ -12,10 +12,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer } = await hre.getNamedAccounts();
 
   const lensHubAddress = getLensHubAddress(hre.network.name);
-  // const gelatoRelayAddress = getGelatoRelayAddress();
-  const gelatoRelayAddress = (
-    await hre.ethers.getContract("KoruDaoRelayTransit")
-  ).address; // using relay v0
+  const gelatoRelayAddress = getGelatoRelayAddress();
 
   const baseUri =
     "https://koru.infura-ipfs.io/ipfs/QmNZgnFPcuTStG8hL938h82A7Q8NHrtzA2Mjpc3anz6E31/";
@@ -33,9 +30,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     koruDaoProfileId = 42808;
     minPubCount = 2;
     minFollowers = 2;
-  } else {
+  } else if (hre.network.name === "mumbai") {
     hasRestrictions = false;
     koruDaoProfileId = 16978;
+    minPubCount = 0;
+    minFollowers = 0;
+  } else {
+    //hardhat
+    hasRestrictions = true;
+    koruDaoProfileId = 42808;
     minPubCount = 0;
     minFollowers = 0;
   }

@@ -18,6 +18,7 @@ contract KoruDaoNFT is
     uint256 public immutable maxSupply;
     string public baseUri;
     bool public paused;
+    mapping(uint256 => bool) public lensProfileMinted;
 
     modifier notPaused() {
         require(!paused, "KoruDaoNFT: Paused");
@@ -62,7 +63,19 @@ contract KoruDaoNFT is
         onlyGelatoRelay
         onlyEligible(_msgSender())
     {
-        _mint(_msgSender());
+        address user = _msgSender();
+
+        uint256 profileId = lensHub.defaultProfile(user);
+
+        if (restricted)
+            require(
+                !lensProfileMinted[profileId],
+                "MintRestrictions: Already minted with lens profile"
+            );
+
+        _mint(user);
+
+        lensProfileMinted[profileId] = true;
     }
 
     function ownerMint(address[] calldata _users) external onlyProxyAdmin {
