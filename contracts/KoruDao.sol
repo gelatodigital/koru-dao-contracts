@@ -46,14 +46,11 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         uint256 token = getKoruDaoNftTokenId(user);
 
-        IKoruDaoRestriction restriction = _validateRestriction(
-            token,
-            Action.POST
-        );
+        IKoruDaoRestriction restriction = _isActive(Action.POST);
+
+        restriction.checkAndUpdateRestriction(token, uint256(Action.POST));
 
         uint256 pubId = lensHub.post(_postData);
-
-        restriction.postAction(token, uint256(Action.POST));
 
         emit LogPost(user, token, pubId, block.timestamp);
     }
@@ -67,10 +64,9 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         uint256 token = getKoruDaoNftTokenId(user);
 
-        IKoruDaoRestriction restriction = _validateRestriction(
-            token,
-            Action.FOLLOW
-        );
+        IKoruDaoRestriction restriction = _isActive(Action.FOLLOW);
+
+        restriction.checkAndUpdateRestriction(token, uint256(Action.FOLLOW));
 
         uint256[] memory profileIds = new uint256[](1);
         bytes[] memory followDatas = new bytes[](1);
@@ -82,8 +78,6 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
             profileIds,
             followDatas
         );
-
-        restriction.postAction(token, uint256(Action.FOLLOW));
 
         emit LogFollow(user, token, followTokenIds, block.timestamp);
     }
@@ -97,14 +91,11 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         uint256 token = getKoruDaoNftTokenId(user);
 
-        IKoruDaoRestriction restriction = _validateRestriction(
-            token,
-            Action.MIRROR
-        );
+        IKoruDaoRestriction restriction = _isActive(Action.MIRROR);
+
+        restriction.checkAndUpdateRestriction(token, uint256(Action.MIRROR));
 
         uint256 pubId = lensHub.mirror(_mirrorData);
-
-        restriction.postAction(token, uint256(Action.MIRROR));
 
         emit LogMirror(user, token, pubId, block.timestamp);
     }
@@ -131,7 +122,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
         token = koruDaoNft.tokenOfOwnerByIndex(_user, 0);
     }
 
-    function _validateRestriction(uint256 _token, Action _action)
+    function _isActive(Action _action)
         private
         view
         returns (IKoruDaoRestriction restriction)
@@ -140,9 +131,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
 
         require(
             address(restriction) != address(0),
-            "KoruDao: Action not enabled"
+            "KoruDao: Action not active"
         );
-
-        restriction.preActionCheck(_token, uint256(_action));
     }
 }

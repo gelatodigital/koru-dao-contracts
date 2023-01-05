@@ -10,7 +10,7 @@ enum Action {
 
 const main = async () => {
   const koruDao = <KoruDao>await ethers.getContract("KoruDao");
-  const timeRestriction = await ethers.getContract("KoruDaoTimeRestriction");
+  const timeRestriction = await ethers.getContract("TimeRestrictionForPosting");
 
   await koruDao.setActionRestriction(Action.POST, timeRestriction.address);
 };
