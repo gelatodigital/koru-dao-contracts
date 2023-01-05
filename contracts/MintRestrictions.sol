@@ -14,12 +14,12 @@ abstract contract MintRestrictions {
     uint256 public immutable minFollowers;
     ILensHub public immutable lensHub;
 
-    modifier onlyEligible(address sender) {
+    modifier onlyEligible(address _wallet) {
         if (restricted) {
-            (bool eligible, ) = isEligible(sender);
+            (bool eligible, ) = isEligible(_wallet);
             require(
                 eligible,
-                "MintRestrictions: Sender does not meet criteria"
+                "MintRestrictions: Wallet does not meet criteria"
             );
         }
 
