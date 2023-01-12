@@ -1,27 +1,6 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import { GelatoRelaySDK } from "@gelatonetwork/gelato-relay-sdk";
-
 export const getGelatoRelayAddress = (): string => {
   //GelatoRelayERC2771
   return "0xBf175FCC7086b4f9bd59d5EAE8eA67b8f940DE0d";
-};
-
-export const getGelatoMetaBoxAddress = (network: string): string => {
-  let chainId;
-  switch (network) {
-    case "matic":
-      chainId = 137;
-      break;
-    case "mumbai":
-    case "hardhat":
-      chainId = 80001;
-      break;
-    default:
-      throw new Error("No gelato meta box address for network");
-  }
-
-  const { address } = GelatoRelaySDK.getMetaBoxAddressAndABI(chainId);
-  return address;
 };
 
 export const getGelatoRelayV0TransitAddress = (network: string): string => {

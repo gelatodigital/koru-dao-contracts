@@ -65,17 +65,16 @@ contract KoruDaoNFT is
     {
         address user = _msgSender();
 
-        uint256 profileId = lensHub.defaultProfile(user);
-
-        if (restricted)
+        if (restricted) {
+            uint256 profileId = lensHub.defaultProfile(user);
             require(
                 !lensProfileMinted[profileId],
                 "MintRestrictions: Already minted with lens profile"
             );
 
+            lensProfileMinted[profileId] = true;
+        }
         _mint(user);
-
-        lensProfileMinted[profileId] = true;
     }
 
     function ownerMint(address[] calldata _users) external onlyProxyAdmin {

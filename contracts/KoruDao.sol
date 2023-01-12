@@ -37,7 +37,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     {
         address user = _msgSender();
 
-        IKoruDaoRestriction restriction = _isActive(Action.POST);
+        IKoruDaoRestriction restriction = _getRestriction(Action.POST);
 
         uint256 token = restriction.checkAndUpdateRestriction(
             user,
@@ -56,7 +56,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     {
         address user = _msgSender();
 
-        IKoruDaoRestriction restriction = _isActive(Action.FOLLOW);
+        IKoruDaoRestriction restriction = _getRestriction(Action.FOLLOW);
 
         uint256 token = restriction.checkAndUpdateRestriction(
             user,
@@ -84,7 +84,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     {
         address user = _msgSender();
 
-        IKoruDaoRestriction restriction = _isActive(Action.MIRROR);
+        IKoruDaoRestriction restriction = _getRestriction(Action.MIRROR);
 
         uint256 token = restriction.checkAndUpdateRestriction(
             user,
@@ -107,7 +107,7 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
         lensHub.setDefaultProfile(_profileId);
     }
 
-    function _isActive(Action _action)
+    function _getRestriction(Action _action)
         private
         view
         returns (IKoruDaoRestriction restriction)
