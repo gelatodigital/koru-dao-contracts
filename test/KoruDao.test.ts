@@ -115,6 +115,16 @@ describe("KoruDao test", function () {
     );
   });
 
+  it("post - non koruDao profileId", async () => {
+    await transferLensHandleToUser();
+
+    await mint();
+
+    await expect(post(9622)).to.be.revertedWith(
+      "GelatoRelayERC2771.sponsoredCallERC2771:KoruDao: Only post for KoruDao"
+    );
+  });
+
   it("post - with koruDao nft", async () => {
     await transferLensHandleToUser();
 
@@ -174,9 +184,9 @@ describe("KoruDao test", function () {
       );
   };
 
-  const post = async () => {
+  const post = async (profileId?: number) => {
     const postData = {
-      profileId: koruDaoLensId,
+      profileId: profileId ?? koruDaoLensId,
       contentURI: "https://",
       collectModule: "0x23b9467334bEb345aAa6fd1545538F3d54436e96", // mumbai free collect module - https://docs.lens.xyz/docs/deployed-contract-addresses
       collectModuleInitData:

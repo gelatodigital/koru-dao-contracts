@@ -15,6 +15,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const gelatoRelayAddress = getGelatoRelayAddress();
 
+  let koruDaoProfileId;
+
+  if (hre.network.name === "matic") {
+    koruDaoProfileId = 42808;
+  } else if (hre.network.name === "mumbai") {
+    koruDaoProfileId = 16978;
+  } else {
+    //hardhat
+    koruDaoProfileId = 42808;
+  }
+
   if (hre.network.name !== "hardhat") {
     console.log(
       `Deploying KoruDao to ${hre.network.name}. Hit ctrl + c to abort`
@@ -27,7 +38,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     proxy: {
       owner: deployer,
     },
-    args: [gelatoRelayAddress, lensHubAddress],
+    args: [gelatoRelayAddress, lensHubAddress, koruDaoProfileId],
   });
 };
 

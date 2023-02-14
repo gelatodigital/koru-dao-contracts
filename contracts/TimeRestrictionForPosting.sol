@@ -55,6 +55,22 @@ contract TimeRestrictionForPosting is IKoruDaoRestriction {
         return lastActionTime[tokenActionHash];
     }
 
+    function lastFollow(uint256 _token) external view returns (uint256) {
+        bytes32 tokenActionHash = keccak256(
+            abi.encode(_token, uint256(IKoruDao.Action.FOLLOW))
+        );
+
+        return lastActionTime[tokenActionHash];
+    }
+
+    function lastMirror(uint256 _token) external view returns (uint256) {
+        bytes32 tokenActionHash = keccak256(
+            abi.encode(_token, uint256(IKoruDao.Action.MIRROR))
+        );
+
+        return lastActionTime[tokenActionHash];
+    }
+
     function checkRestriction(uint256 _token, uint256 _action)
         public
         view
@@ -82,21 +98,4 @@ contract TimeRestrictionForPosting is IKoruDaoRestriction {
 
         token = koruDaoNft.tokenOfOwnerByIndex(_user, 0);
     }
-
-    /// @dev can be added as desired
-    // function lastFollow(uint256 _token) external view returns (uint256) {
-    //     bytes32 tokenActionHash = keccak256(
-    //         abi.encode(_token, uint256(IKoruDao.Action.FOLLOW))
-    //     );
-
-    //     return lastActionTime[tokenActionHash];
-    // }
-
-    // function lastMirror(uint256 _token) external view returns (uint256) {
-    //     bytes32 tokenActionHash = keccak256(
-    //         abi.encode(_token, uint256(IKoruDao.Action.MIRROR))
-    //     );
-
-    //     return lastActionTime[tokenActionHash];
-    // }
 }

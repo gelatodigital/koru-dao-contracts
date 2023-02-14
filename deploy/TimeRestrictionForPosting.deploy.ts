@@ -13,7 +13,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   let actionInterval;
   if (hre.network.name === "matic") {
-    actionInterval = 24 * 60 * 60; // 24 hrs
+    actionInterval = 12 * 60 * 60; // 12 hrs
   } else {
     actionInterval = 5 * 60; // 5 min
   }

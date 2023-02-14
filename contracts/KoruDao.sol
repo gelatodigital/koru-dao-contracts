@@ -16,6 +16,7 @@ import {IKoruDaoRestriction} from "./interfaces/IKoruDaoRestriction.sol";
 //solhint-disable not-rely-on-time
 contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
     ILensHub public immutable lensHub;
+    uint256 public immutable koruDaoProfileId;
 
     mapping(Action => address) public actionRestriction;
 
@@ -24,10 +25,13 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
         _;
     }
 
-    constructor(address _gelatoRelay, ILensHub _lensHub)
-        ERC2771Context(_gelatoRelay)
-    {
+    constructor(
+        address _gelatoRelay,
+        ILensHub _lensHub,
+        uint256 _koruDaoProfileId
+    ) ERC2771Context(_gelatoRelay) {
         lensHub = _lensHub;
+        koruDaoProfileId = _koruDaoProfileId;
     }
 
     function post(DataTypes.PostData calldata _postData)
@@ -35,6 +39,10 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
         override
         onlyGelatoRelay
     {
+        require(
+            _postData.profileId == koruDaoProfileId,
+            "KoruDao: Only post for KoruDao"
+        );
         address user = _msgSender();
 
         IKoruDaoRestriction restriction = _getRestriction(Action.POST);
@@ -82,6 +90,10 @@ contract KoruDao is ERC721Holder, ERC2771Context, Proxied, IKoruDao {
         override
         onlyGelatoRelay
     {
+        require(
+            _mirrorData.profileId == koruDaoProfileId,
+            "KoruDao: Only mirror for KoruDao"
+        );
         address user = _msgSender();
 
         IKoruDaoRestriction restriction = _getRestriction(Action.MIRROR);
