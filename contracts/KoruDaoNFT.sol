@@ -16,17 +16,20 @@ contract KoruDaoNFT is
     using Strings for uint256;
 
     uint256 public immutable maxSupply;
+    uint256 public immutable mintTime;
     string public baseUri;
     bool public paused;
     mapping(uint256 => bool) public lensProfileMinted;
 
+    //solhint-disable not-rely-on-time
     modifier notPaused() {
-        require(!paused, "KoruDaoNFT: Paused");
+        require(!paused || block.timestamp > mintTime, "KoruDaoNFT: Paused");
         _;
     }
 
     constructor(
         bool _restricted,
+        uint256 _mintTime,
         uint256 _maxSupply,
         uint256 _koruDaoProfileId,
         uint256 _minPubCount,
@@ -43,6 +46,7 @@ contract KoruDaoNFT is
         )
         ERC721MetaTxEnumerableUpgradeable(_gelatoRelay)
     {
+        mintTime = _mintTime;
         maxSupply = _maxSupply;
     }
 

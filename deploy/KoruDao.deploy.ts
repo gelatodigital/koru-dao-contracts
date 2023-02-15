@@ -20,7 +20,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (hre.network.name === "matic") {
     koruDaoProfileId = 42808;
   } else if (hre.network.name === "mumbai") {
-    koruDaoProfileId = 16978;
+    koruDaoProfileId = 27647;
   } else {
     //hardhat
     koruDaoProfileId = 42808;

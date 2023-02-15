@@ -16,7 +16,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const baseUri =
     "https://koru.infura-ipfs.io/ipfs/QmNZgnFPcuTStG8hL938h82A7Q8NHrtzA2Mjpc3anz6E31/";
-  const isPaused = false;
+  const mintTime = 1676475000;
 
   const maxSupply = 282;
 
@@ -24,23 +24,27 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   let koruDaoProfileId;
   let minPubCount;
   let minFollowers;
+  let isPaused;
 
   if (hre.network.name === "matic") {
     hasRestrictions = true;
     koruDaoProfileId = 42808;
-    minPubCount = 2;
-    minFollowers = 2;
+    minPubCount = 30;
+    minFollowers = 700;
+    isPaused = true;
   } else if (hre.network.name === "mumbai") {
     hasRestrictions = false;
-    koruDaoProfileId = 16978;
+    koruDaoProfileId = 27647;
     minPubCount = 0;
     minFollowers = 0;
+    isPaused = false;
   } else {
     //hardhat
     hasRestrictions = true;
     koruDaoProfileId = 42808;
     minPubCount = 0;
     minFollowers = 0;
+    isPaused = false;
   }
 
   if (hre.network.name !== "hardhat") {
@@ -69,6 +73,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     },
     args: [
       hasRestrictions,
+      mintTime,
       maxSupply,
       koruDaoProfileId,
       minPubCount,
