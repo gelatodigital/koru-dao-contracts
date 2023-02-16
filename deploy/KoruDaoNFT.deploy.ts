@@ -29,8 +29,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (hre.network.name === "matic") {
     hasRestrictions = true;
     koruDaoProfileId = 42808;
-    minPubCount = 30;
-    minFollowers = 700;
+    minPubCount = 10;
+    minFollowers = 300;
     isPaused = true;
   } else if (hre.network.name === "mumbai") {
     hasRestrictions = false;
