@@ -1,5 +1,34 @@
 # Koru Dao
 
+## Installation
+
+Install the dependencies using `yarn`:
+
+```console
+$ yarn install
+```
+
+## Configuration
+
+You must create a `.env` file in the root directory and set the following values
+in it:
+
+```
+ALCHEMY_ID=<you alchemy API key>
+PK=<the private key for the deployer address>
+```
+
+Without these, tests and deployment will not work.
+
+## Tests
+
+To run the tests, first **compile**, then run the tests:
+
+```console
+$ npx hardhat compile
+$ npx hardhat test
+```
+
 ## Contracts
 
 - [`KoruDao.sol`](#korudaosol)
